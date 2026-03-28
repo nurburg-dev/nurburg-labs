@@ -1,4 +1,14 @@
-# Transaction ID Wraparound in Postgres: an outage to remember
+---
+title: "Transaction ID Wraparound in Postgres: an outage to remember"
+author: Anunay Biswas
+authorLink: https://github.com/anunaybiswas
+authorTitle: Software Engineer
+summary: "How Sentry's PostgreSQL primary stopped accepting writes in 2015 due to XID wraparound — a knowable failure that many production systems are still vulnerable to."
+publishedOn: 2026-03-28
+tags: [postgres, redis, distributed-systems]
+intent: experiment
+draft: false
+---
 
 Databases have their quirks. Some are well-documented, some are discovered the hard way, and some are both — known issues that slip through the cracks when teams are heads-down shipping product.
 

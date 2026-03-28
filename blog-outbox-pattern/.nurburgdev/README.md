@@ -1,4 +1,14 @@
-# The books didn't balance. Here's how the outbox pattern saved our distributed transaction
+---
+title: "The books didn't balance. Here's how the outbox pattern saved our distributed transaction"
+author: Anunay Biswas
+authorLink: https://github.com/anunaybiswas
+authorTitle: Software Engineer
+summary: "How the outbox pattern eliminates phantom transactions between your database and event stream — and why at-least-once delivery with idempotent consumers is the right tradeoff."
+publishedOn: 2026-03-28
+tags: [postgres, kafka, distributed-systems]
+intent: experiment
+draft: false
+---
 
 It's 11 PM, three days before the tax filing deadline. You're staring at two numbers that should be equal. They aren't. The total value of committed orders in the database is ₹2,31,18,650. The total in the ledger is ₹2,34,71,840. The ledger is higher — it contains transactions for orders that don't exist in the database. Somewhere over the past year, Kafka events reached the ledger for orders whose database commits had already failed and rolled back. Ghost orders, fully accounted for, attached to nothing.
 
