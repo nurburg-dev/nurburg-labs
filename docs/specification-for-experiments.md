@@ -1,21 +1,15 @@
-# Specification for experiments
+# Specification for experiment
 
 ## What is an experiment ?
 
-An experiment is a backend system design definition and its evaluation scenario
-that you define in your git repository. It specifies the infrastructure to deploy
-(your service and any databases it depends on) and the test tasks to run against
-it (load tests, API tests, chaos injection). nurburg.dev runs each experiment
-in an isolated environment, captures performance metrics, and produces a set of
-scores that let you compare results across experiments.
+An experiment is a backend system design definition and its evaluation scenario that you define in your git repository. It specifies the infrastructure to deploy (your service and any databases it depends on) and the test tasks to run against it (load tests, API tests, chaos injection). nurburg.dev runs each experiment in an isolated environment, captures performance metrics, and produces a set of scores that let you compare results across experiments.
 
-An experiment lives in a `.nurburgdev/` directory at the root of your repository
-and consists of:
+To get started, create a folder for your project. By convention, prefix the folder name with your intent — `challenge-my-project` for a challenge submission or `experiment-my-project` for an exploration. This is a soft naming convention for convenience, not enforced by the platform.
 
-- **Components** — long-running infrastructure: your service and supporting databases
-  (Postgres, MySQL, Redis, Kafka, Temporal)
-- **Tasks** — short-lived jobs that run after components are ready: load tests,
-  API tests, data seeders, and failure injection (server failure, network partitioning)
+Inside that folder, create a `.nurburgdev/` directory. An experiment lives in `.nurburgdev/` at the root of your repository and consists of:
+
+- **Components** — long-running infrastructure: your service and supporting databases (Postgres, MySQL, Redis, Kafka, Temporal)
+- **Tasks** — short-lived jobs that run after components are ready: load tests, API tests, data seeders, and failure injection (server failure, network partitioning)
 - **Scores** — tell how you want to evaluate the performance of the system design
 - **Telemetry** - tells which telemetry metrics to display in report on nurburg.dev
 
@@ -32,8 +26,7 @@ An experiment is defined in `.nurburgdev/experiment.toml`
 
 ### Components
 
-Components are the long-running infrastructure services that form your test
-environment. At least one `[[service]]` is required.
+Components are the long-running infrastructure services that form your test environment. At least one `[[service]]` is required.
 
 #### `[[service]]`
 
@@ -63,6 +56,33 @@ instances = 1
 
 [service.env]
 REDIS_URL = "redis://redis:6379"
+```
+
+#### Procfile
+
+Each service is started via a `Procfile` in its source directory (the path specified by `directory`, defaulting to the repo root). nurburg.dev reads two process types from it:
+
+| Process | Required | Description                                                       |
+| ------- | -------- | ----------------------------------------------------------------- |
+| `build` | No       | Runs once before `web` to compile the application                 |
+| `web`   | Yes      | Starts the long-running server process on the configured `port`   |
+
+`build` always runs to completion before `web` is started. If `build` exits with a non-zero code the service is marked as failed and `web` is never started.
+
+```Procfile
+build: go build -o ./app .
+web: ./app
+```
+
+```Procfile
+build: mvn package -q
+web: java -jar target/app.jar
+```
+
+For runtimes that don't require a compile step, omit `build` and define only `web`:
+
+```Procfile
+web: node server.js
 ```
 
 #### `[[postgres]]`
@@ -116,6 +136,16 @@ REDIS_URL = "redis://redis:6379"
 | `topics[].name`              | string  | Yes      |               | Topic name                                             |
 | `topics[].partition`         | integer | No       |               | Number of partitions. Defaults to `3`                  |
 | `topics[].replicationFactor` | integer | No       |               | Defaults to `1`                                        |
+
+#### `[[memcached]]`
+
+| Field           | Type    | Required | Constraints   | Description                                                                        |
+| --------------- | ------- | -------- | ------------- | ---------------------------------------------------------------------------------- |
+| `name`          | string  | Yes      |               | Unique name, referenced by other components                                        |
+| `cpuCores`      | float   | Yes      | 0 < value ≤ 2 |                                                                                    |
+| `memoryMB`      | integer | Yes      | ≤ 4096        |                                                                                    |
+| `replicas`      | integer | No       | 1–16          | Number of shards. Defaults to `1`                                                  |
+| `maxItemSizeMB` | integer | No       | 0–128         | Max size of a single item (`-I` flag). Defaults to `0` (memcached default of 1 MB) |
 
 #### `[[temporal]]`
 
@@ -247,30 +277,47 @@ authorTitle: "Software Engineer"
 summary: "One-sentence description shown in listings"
 publishedOn: 2024-06-01
 tags: [redis, scalability]
-difficulty: medium
-points: 100
+intent: "experiment"
 video: "https://youtube.com/..." # optional
 heroImage: "hero.png" # optional
 draft: false
 ---
 ```
 
-| Field         | Type    | Required | Description                                              |
-| ------------- | ------- | -------- | -------------------------------------------------------- |
-| `title`       | string  | Yes      | Display title of the experiment                          |
-| `author`      | string  | Yes      | Author's display name                                    |
-| `authorLink`  | URL     | Yes      | Link to the author's profile (e.g. GitHub)               |
-| `authorTitle` | string  | Yes      | Author's job title or role                               |
-| `summary`     | string  | Yes      | Short description shown in experiment listings           |
-| `publishedOn` | date    | Yes      | Publication date (`YYYY-MM-DD`)                          |
-| `tags`        | array   | Yes      | At least 2 tags (see valid values below)                 |
-| `difficulty`  | string  | Yes      | `easy`, `medium`, or `hard`                              |
-| `points`      | integer | No       | Points awarded. Defaults to `100`                        |
-| `video`       | string  | No       | URL to a companion video                                 |
-| `heroImage`   | string  | No       | Path to a hero image file                                |
-| `draft`       | boolean | No       | Set to `true` to hide from listings. Defaults to `false` |
+For challenges, set `intent: "challenge"` and include a `challengeDetails` block:
 
-**Valid tags:** `mysql`, `postgres`, `redis`, `scalability`, `temporal`, `kafka`, `debugging`, `analytics`, `distributed-systems`
+```markdown
+---
+...
+intent: "challenge"
+challengeDetails:
+  id: 1234
+  difficulty: "medium"
+  points: 100
+  language: "go"
+---
+```
+
+| Field                        | Type    | Required                        | Description                                              |
+| ---------------------------- | ------- | ------------------------------- | -------------------------------------------------------- |
+| `title`                      | string  | Yes                             | Display title of the experiment                          |
+| `author`                     | string  | Yes                             | Author's display name                                    |
+| `authorLink`                 | URL     | Yes                             | Link to the author's profile (e.g. GitHub)               |
+| `authorTitle`                | string  | Yes                             | Author's job title or role                               |
+| `summary`                    | string  | Yes                             | Short description shown in experiment listings           |
+| `publishedOn`                | date    | Yes                             | Publication date (`YYYY-MM-DD`)                          |
+| `tags`                       | array   | Yes                             | At least 2 tags (see valid values below)                 |
+| `intent`                     | string  | Yes                             | `experiment` or `challenge`                              |
+| `challengeDetails`           | object  | Yes (when `intent: challenge`)  | Challenge-specific metadata                              |
+| `challengeDetails.id`        | integer | Yes                             | Numeric challenge ID (1–9999)                            |
+| `challengeDetails.difficulty`| string  | Yes                             | `easy`, `medium`, or `hard`                              |
+| `challengeDetails.points`    | integer | Yes                             | Points awarded for completing the challenge              |
+| `challengeDetails.language`  | string  | Yes                             | `python`, `typescript`, `go`, or `java`                  |
+| `video`                      | string  | No                              | URL to a companion video                                 |
+| `heroImage`                  | string  | No                              | Path to a hero image file                                |
+| `draft`                      | boolean | No                              | Set to `true` to hide from listings. Defaults to `false` |
+
+**Valid tags:** `mysql`, `postgres`, `redis`, `memcached`, `kafka`, `temporal`, `scalability`, `debugging`, `analytics`, `distributed-systems`
 
 ### Code blocks
 
@@ -343,17 +390,18 @@ The fork URL is `https://nurburg.dev/fork/{owner}/{repo}` where `{owner}` and `{
 
 Scores evaluate experiment outcomes. Each score name is only valid for the component or task type listed.
 
-| Name             | Applies to           | Unit   | Direction        | Description                                               |
-| ---------------- | -------------------- | ------ | ---------------- | --------------------------------------------------------- |
-| `ERR_RATE`       | `traffic` task       | %      | Lower is better  | Peak HTTP error rate during the load test                 |
-| `LATENCY_95`     | `traffic` task       | ms     | Lower is better  | Peak 95th percentile request latency during the load test |
-| `FUNC_TEST`      | `apitest` task       | %      | Higher is better | Percentage of API test cases that passed                  |
-| `CODE_QUALITY`   | `sonarqube` task     | rating | Higher is better | Code quality rating from SonarQube analysis               |
-| `SERVICE_CPU`    | `service` component  | %      | Lower is better  | Peak CPU usage across service pods                        |
-| `SERVICE_MEMORY` | `service` component  | MB     | Lower is better  | Peak memory usage across service pods                     |
-| `REDIS_CPU`      | `redis` component    | %      | Lower is better  | Peak CPU usage across Redis pods                          |
-| `MYSQL_CPU`      | `mysql` component    | %      | Lower is better  | Peak CPU usage across MySQL pods                          |
-| `POSTGRESQL_CPU` | `postgres` component | %      | Lower is better  | Peak CPU usage across PostgreSQL pods                     |
+| Name             | Applies to            | Unit   | Direction        | Description                                               |
+| ---------------- | --------------------- | ------ | ---------------- | --------------------------------------------------------- |
+| `ERR_RATE`       | `traffic` task        | %      | Lower is better  | Peak HTTP error rate during the load test                 |
+| `LATENCY_95`     | `traffic` task        | ms     | Lower is better  | Peak 95th percentile request latency during the load test |
+| `FUNC_TEST`      | `apitest` task        | %      | Higher is better | Percentage of API test cases that passed                  |
+| `CODE_QUALITY`   | `sonarqube` task      | rating | Higher is better | Code quality rating from SonarQube analysis               |
+| `SERVICE_CPU`    | `service` component   | %      | Lower is better  | Peak CPU usage across service pods                        |
+| `SERVICE_MEMORY` | `service` component   | MB     | Lower is better  | Peak memory usage across service pods                     |
+| `REDIS_CPU`      | `redis` component     | %      | Lower is better  | Peak CPU usage across Redis pods                          |
+| `MYSQL_CPU`      | `mysql` component     | %      | Lower is better  | Peak CPU usage across MySQL pods                          |
+| `POSTGRESQL_CPU` | `postgres` component  | %      | Lower is better  | Peak CPU usage across PostgreSQL pods                     |
+| `MEMCACHED_CPU`  | `memcached` component | %      | Lower is better  | Peak CPU usage across Memcached pods                      |
 
 > `apitest` tasks are named `apitest-0`, `apitest-1`, … based on their position in the `apitest` array.
 
@@ -444,6 +492,17 @@ Telemetry defines which time-series metrics appear in the experiment report. Met
 | `OFFLINE_PARTITIONS`          | count        | `Timestamp (mins from start)`, `Partition count`                          | Number of offline partitions          |
 | `ACTIVE_CONTROLLER`           | count        | `Timestamp (mins from start)`, `Count`                                    | Active controller count (should be 1) |
 | `LOG_FLUSH_RATE`              | flushes/sec  | `Timestamp (mins from start)`, `Flushes/sec`                              | Log flush rate                        |
+
+#### Memcached component (`componentName = "<memcached-name>"`)
+
+| Name                  | Unit     | Dimensions                                         | Description                  |
+| --------------------- | -------- | -------------------------------------------------- | ---------------------------- |
+| `PEAK_CPU`            | %        | `CPU usage (%)`                                    | Peak CPU usage               |
+| `POD_CPU`             | %        | `Timestamp (mins from start)`, `CPU Usage (%)`     | CPU usage                    |
+| `POD_MEMORY`          | MB       | `Timestamp (mins from start)`, `Memory usage (MB)` | Memory usage                 |
+| `MEMORY_USAGE`        | MB       | `Timestamp (mins from start)`, `Memory usage (MB)` | Memcached memory in use      |
+| `COMMANDS_PER_SECOND` | cmds/sec | `Timestamp (mins from start)`, `Commands/sec`      | Memcached command throughput |
+| `HIT_RATIO`           | ratio    | `Timestamp (mins from start)`, `Hit Ratio`         | Cache get hit ratio (0–1)    |
 
 #### Temporal component (`componentName = "<temporal-name>"`)
 

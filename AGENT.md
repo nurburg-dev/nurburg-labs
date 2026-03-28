@@ -8,7 +8,7 @@ nurburg-labs is a collection of backend system design experiments for [nurburg.d
 
 ## How experiments are structured
 
-```
+```text
 my-experiment/
 ├── .nurburgdev/
 │   ├── README.md          # the written article — most important file

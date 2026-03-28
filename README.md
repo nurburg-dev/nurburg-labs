@@ -11,7 +11,7 @@ Each top-level folder is a self-contained experiment. An experiment defines:
 - **Tasks** to run against it (load tests, API tests, chaos injection)
 - **Scores** that evaluate the outcome
 
-```
+```text
 nurburg-labs/
 ├── redis-cache-aside/          # example experiment
 │   ├── .nurburgdev/

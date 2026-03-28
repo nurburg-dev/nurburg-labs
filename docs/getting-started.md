@@ -15,9 +15,17 @@ To get started with an agent, describe your experiment idea and ask it to scaffo
 
 **IMPORTANT** - once code is scaffolded please use the good-old human intelligence to develop the experiment and writeup as much as possible to ensure quality.
 
-## 1. Write the README writeup (most important step)
+## 1. Create a folder for your experiment
 
-Before writing any config, write `.nurburgdev/README.md`. This is the article that appears on nurburg.dev — it is the most important part of your experiment. A well-written experiment explains the problem clearly, motivates the design choices, and gives readers something to learn from. The benchmark results are only meaningful if the writeup provides the context to interpret them.
+At the repo root, create a folder with a short, descriptive, hyphenated name. By convention, prefix the folder name with your intent — `challenge-` for a challenge submission or `experiment-` for an exploration:
+
+```text
+experiment-my-project/
+```
+
+## 2. Write the README writeup (most important step)
+
+Write `experiment-my-project/.nurburgdev/README.md` inside the folder you created in step 1. This is the article that appears on nurburg.dev — it is the most important part of your experiment. A well-written experiment explains the problem clearly, motivates the design choices, and gives readers something to learn from. The benchmark results are only meaningful if the writeup provides the context to interpret them.
 
 A good README should cover:
 
@@ -37,33 +45,40 @@ authorTitle: "Software Engineer"
 summary: "Benchmark a cache-aside pattern to reduce database read load."
 publishedOn: 2026-03-24
 tags: [redis, scalability]
-difficulty: medium
-points: 100
+intent: "experiment"
+video: "https://youtube.com/..." # optional
+heroImage: "hero.png" # optional
 draft: true
 ---
 
 Describe the system design you're testing and why it's interesting...
 ```
 
+For challenges, set `intent: "challenge"` and include a `challengeDetails` block:
+
+```markdown
+---
+...
+intent: "challenge"
+challengeDetails:
+  id: 1234
+  difficulty: "medium"
+  points: 100
+  language: "go"
+---
+```
+
 > **Set `draft: true` when submitting your PR.** After the PR is merged, a final round of testing is run on nurburg.dev. Once results look good, update the frontmatter to `draft: false` to publish the experiment publicly.
 
-Valid tags: `mysql`, `postgres`, `redis`, `scalability`, `temporal`, `kafka`, `debugging`, `analytics`, `distributed-systems`
+**Valid tags:** `mysql`, `postgres`, `redis`, `memcached`, `kafka`, `temporal`, `scalability`, `debugging`, `analytics`, `distributed-systems`
 
 See [specification-for-experiments.md](specification-for-experiments.md) for the full README format including sidenotes, code block annotations, and the fork badge.
-
-## 2. Create a folder for your experiment
-
-At the repo root, create a folder with a short, descriptive, hyphenated name:
-
-```
-my-experiment/
-```
 
 ## 3. Add a devcontainer
 
 Your experiment folder should include a `.devcontainer/` directory so contributors can open the project in a consistent development environment. Rather than writing one from scratch, copy the `.devcontainer/` folder from an existing experiment in this repo that uses the same runtime as your service.
 
-```
+```text
 my-experiment/
 ├── .devcontainer/
 │   └── devcontainer.json
@@ -74,7 +89,7 @@ my-experiment/
 
 Put your service source inside the experiment folder. The layout is up to you — a common convention is a `src/` subdirectory:
 
-```
+```text
 my-experiment/
 └── src/
     └── main.go   # or index.js, main.py, Main.java, etc.
@@ -84,7 +99,7 @@ my-experiment/
 
 Inside your experiment folder, create a `.nurburgdev/` directory. This is where the experiment definition and your README live:
 
-```
+```text
 my-experiment/
 ├── .nurburgdev/
 │   ├── experiment.toml
@@ -175,7 +190,7 @@ export default function () {
 
 Push your branch and open a PR against `main`. The folder structure for a finished experiment looks like this:
 
-```
+```text
 my-experiment/
 ├── .devcontainer/
 │   └── devcontainer.json
