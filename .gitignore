@@ -1,0 +1,5 @@
+.prompts
+
+# Vale: ignore downloaded packages (restored via `vale sync`), keep custom vocab
+.vale/styles/*
+!.vale/styles/config/

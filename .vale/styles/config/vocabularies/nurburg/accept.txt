@@ -1,0 +1,37 @@
+# Author names
+Anunay
+Biswas
+
+# Infrastructure and tools
+Memcached
+Vitess
+Kafka
+Temporal
+PostgreSQL
+MySQL
+Redis
+McRib
+Consul
+devops
+k6
+deregisters
+
+# Company / product names
+Shopify
+Flipkart
+YouTube
+
+# Proper nouns / places
+Chornobyl
+
+# Technical abbreviations
+APIs
+SDKs
+XIDs
+GIFs
+gif
+gifs
+
+# Common tech terms
+userdata
+phonebook
