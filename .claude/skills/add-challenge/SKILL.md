@@ -1,0 +1,102 @@
+---
+name: add-challenge
+description: Scaffold a challenge in this git repository
+argument-hint: <blog-name> <programming-language> <stack>
+---
+
+For enums strictly follow documentation.
+
+# Add challenge
+
+Scaffold a new challenge in this git repository. Steps are as follows
+
+## Step 1: create folder structure
+
+1. create a folder with name format `challenge-[id]` where id is a short `-` separated name derived from `challenge-name` arguement
+2. inside the folder created preceing create `.nurburgdev` directory and a file `.nurburgdev/README.md`
+3. in `.nurburgdev/README.md` add frontmatter with the following format
+
+```md
+---
+title: "Your experiment title"
+author: "Author Name"
+authorLink: "https://github.com/your-handle"
+authorTitle: "Software Engineer"
+summary: "One-sentence description shown in listings"
+publishedOn: 2024-06-01
+tags: [redis, scalability]
+intent: "challenge"
+draft: false
+challengeDetails:
+  id: 1234
+  difficulty: "medium"
+  points: 100
+  language: "go"
+---
+```
+### Rules to follow
+
+1. Complete list of tags can be found in `docs/specification-for-experiments.md` file
+2. In body of the markdown never use `h1` or `#` heading. Use `##` or `###` or `####` or `#####` or `#####`  
+3. Intent should be challenge
+4. challengeDetails are required.
+
+## Step 2: Create `.nurburgdev/experiment.toml`
+
+Read `docs/specification-for-experiments.md` the section `Format of an experiment` to understand how to format this file. Consider `<programming-language>` and `<stack>` arguements to create this file.
+
+## Step 3: Create `Procfile`
+
+Read `docs/specification-for-experiments.md` the section `Procfile` to understand how to create `Procfile`.
+
+## Step 3: Scaffold an http project in as few files as possible
+
+Any project created should have 1 endpoint `/healthcheck` api
+
+### For go project
+
+1. `go.mod`
+2. `go.sum`
+3. `src/main.go` with a `/healthcheck` api
+4. `.gitignore`
+
+### For typescript or node project
+
+1. `packge.json` and `package-lock.json`
+2. `src/index.ts` - use express for http service
+3. `.gitignore`
+
+### For python
+
+1. `requirements.txt`
+2. `src/index.py` - use fastapi for http service 
+3. `.gitignore`
+
+### For java
+
+1. `pom.xml`
+2. `src` folder with package `dev.nurburg` with an springboot 1 file http service. The class should be named main
+3. .gitignore
+
+## Step 4: Create `.nurburgdev/traffic.js`
+
+This is a k6 load tests. Create a 10 second loadtest on `/healthcheck` api 
+
+## Step 5: Create `.nurburgdev/apitest.tavern.yaml`
+
+This is a tavern test file. create 1 test on `/heatlhcheck` which just expects status code 200
+
+## Step 6: Setup devcontainer in the challenge folder created in step 1
+
+1. check if the latest version of `nd` command line tool is installed or not by scanning this link - [`nd` release page](https://github.com/nurburg-dev/nurburg-platform-releases/releases)
+2. install or update if required. 
+3. change directory to the challenge directory and run `nd devcontainer --features=<comma-separated-features>`.  Replace `<comma-separated-features>` with a list of features inferred from <programming-language> <stack> arguements. allowed list of features are 
+    1. `postgresql`
+	  2. `mysql`
+	  3. `kafka`
+	  4. `typescript`
+	  5. `go`
+	  6. `java`
+	  7. `python`
+	  8. `temporal`
+
