@@ -1,0 +1,9 @@
+{
+  "name": "Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
+  }
+}

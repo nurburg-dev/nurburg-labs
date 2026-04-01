@@ -1,0 +1,9 @@
+test_name: Healthcheck API Tests
+
+stages:
+  - name: GET /healthcheck returns 200
+    request:
+      url: "{tavern.env_vars.SERVICE_URL}/healthcheck"
+      method: GET
+    response:
+      status_code: 200

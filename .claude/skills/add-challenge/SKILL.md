@@ -90,9 +90,7 @@ This is a tavern test file. create 1 test on `/heatlhcheck` which just expects s
 
 ## Step 6: Setup devcontainer in the challenge folder created in step 1
 
-1. check if the latest version of `nd` command line tool is installed or not by scanning this link - [`nd` release page](https://github.com/nurburg-dev/nurburg-platform-releases/releases)
-2. install or update if required. 
-3. change directory to the challenge directory and run `nd devcontainer --features=<comma-separated-features>`.  Replace `<comma-separated-features>` with a list of features inferred from <programming-language> <stack> arguements. allowed list of features are 
+Change directory to the challenge directory and run `nd devcontainer --features=<comma-separated-features>`.  Replace `<comma-separated-features>` with a list of features inferred from <programming-language> <stack> arguements. allowed list of features are 
     1. `postgresql`
 	  2. `mysql`
 	  3. `kafka`
