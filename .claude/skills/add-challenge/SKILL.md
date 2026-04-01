@@ -26,7 +26,7 @@ summary: "One-sentence description shown in listings"
 publishedOn: 2024-06-01
 tags: [redis, scalability]
 intent: "challenge"
-draft: false
+draft: true
 challengeDetails:
   id: 1234
   difficulty: "medium"
@@ -34,6 +34,8 @@ challengeDetails:
   language: "go"
 ---
 ```
+For `id` in `challengeDetails` in frontmatter - scan `challenge-*/.nurburgdev/README.md` for the max value in front matter. new id should be 1 more that.
+
 ### Rules to follow
 
 1. Complete list of tags can be found in `docs/specification-for-experiments.md` file
