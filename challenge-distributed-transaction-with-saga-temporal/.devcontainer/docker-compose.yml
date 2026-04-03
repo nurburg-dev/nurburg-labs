@@ -1,0 +1,55 @@
+services:
+    dev:
+        image: mcr.microsoft.com/devcontainers/typescript-node:22
+        command: sleep infinity
+        volumes:
+            - ../:/workspaces/xenial-xenon
+        ports:
+            - "3000:3000"
+            - "4000:4000"
+            - "5000:5000"
+        depends_on:
+            - pg-booking-service
+            - pg-airline1
+            - mysql-airline2
+            - temporal
+    pg-booking-service:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: bookingdb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
+    pg-airline1:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: airline1db
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
+    mysql-airline2:
+        image: mysql:8.4.8
+        environment:
+            MYSQL_DATABASE: airline2db
+            MYSQL_PASSWORD: password
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_USER: user
+    temporal-db:
+        image: postgres:17.9
+        environment:
+            POSTGRES_USER: temporal
+            POSTGRES_PASSWORD: temporal
+            POSTGRES_DB: temporal
+    temporal:
+        image: temporalio/auto-setup:1.26.1
+        environment:
+            DB: postgresql
+            DB_PORT: "5432"
+            POSTGRES_SEEDS: temporal-db
+            POSTGRES_USER: temporal
+            POSTGRES_PWD: temporal
+            TEMPORAL_ADDRESS: temporal:7233
+            TEMPORAL_BROADCAST_ADDRESS: temporal
+            ENABLE_ES: "false"
+        depends_on:
+            - temporal-db
+        ports:
+            - "7233:7233"
