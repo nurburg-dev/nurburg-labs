@@ -1,0 +1,62 @@
+services:
+    dev:
+        image: mcr.microsoft.com/devcontainers/typescript-node:22
+        command: sleep infinity
+        volumes:
+            - ../:/workspaces/xenial-xenon
+        ports:
+            - "3000:3000"
+            - "4000:4000"
+            - "5000:5000"
+        depends_on:
+            - pg-booking-service
+            - pg-airline1
+            - mysql-airline2
+            - kafka
+    kafka:
+        image: apache/kafka:4.0.0
+        environment:
+            CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+            KAFKA_NODE_ID: "1"
+            KAFKA_PROCESS_ROLES: broker,controller
+            KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+            KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+            KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+            KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+    kafka-init:
+        image: apache/kafka:4.0.0
+        depends_on:
+            - kafka
+        command: >
+            bash -c "for topic in saga-commands saga-replies; do
+            /opt/kafka/bin/kafka-topics.sh --create --if-not-exists
+            --bootstrap-server kafka:9092
+            --topic $$topic
+            --partitions 3
+            --replication-factor 1; done"
+        restart: on-failure
+    pg-booking-service:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: bookingdb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
+    pg-airline1:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: airline1db
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
+    mysql-airline2:
+        image: mysql:8.4.8
+        environment:
+            MYSQL_DATABASE: airline2db
+            MYSQL_PASSWORD: password
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_USER: user
