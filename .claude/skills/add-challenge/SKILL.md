@@ -116,3 +116,7 @@ Change directory to the challenge directory and run `nd devcontainer --features=
 	  7. `python`
 	  8. `temporal`
 
+
+## Few conventions
+1. in experiment.toml env should be inline
+2. in experiment.toml kafka topics should be inline
