@@ -53,19 +53,19 @@ healthCheckUrl = "/health"
 cpuCores = 0.5
 memoryMB = 256
 instances = 1
-
-[service.env]
-REDIS_URL = "redis://redis:6379"
+env = {REDIS_URL = "redis://redis:6379"}
 ```
+
+NOTE: the convention to follow is to put the env inline in toml file
 
 #### Procfile
 
 Each service is started via a `Procfile` in its source directory (the path specified by `directory`, defaulting to the repo root). nurburg.dev reads two process types from it:
 
-| Process | Required | Description                                                       |
-| ------- | -------- | ----------------------------------------------------------------- |
-| `build` | No       | Runs once before `web` to compile the application                 |
-| `web`   | Yes      | Starts the long-running server process on the configured `port`   |
+| Process | Required | Description                                                     |
+| ------- | -------- | --------------------------------------------------------------- |
+| `build` | No       | Runs once before `web` to compile the application               |
+| `web`   | Yes      | Starts the long-running server process on the configured `port` |
 
 `build` always runs to completion before `web` is started. If `build` exits with a non-zero code the service is marked as failed and `web` is never started.
 
@@ -137,6 +137,8 @@ web: node server.js
 | `topics[].partition`         | integer | No       |               | Number of partitions. Defaults to `3`                  |
 | `topics[].replicationFactor` | integer | No       |               | Defaults to `1`                                        |
 
+Note: Convention is to put topics inline in toml
+
 #### `[[memcached]]`
 
 | Field           | Type    | Required | Constraints   | Description                                                                        |
@@ -166,12 +168,13 @@ Tasks run after all components are healthy. They are short-lived jobs.
 
 Runs a [k6](https://k6.io/) load test script.
 
-| Field      | Type    | Required | Constraints   | Description                                                                      |
-| ---------- | ------- | -------- | ------------- | -------------------------------------------------------------------------------- |
-| `file`     | string  | Yes      |               | Path to the k6 script, relative to the repo root (e.g. `.nurburgdev/traffic.js`) |
-| `cpuCores` | float   | Yes      | 0 < value ≤ 2 |                                                                                  |
-| `memoryMB` | integer | Yes      | ≤ 4096        |                                                                                  |
-| `env`      | table   | No       |               | Environment variables injected into the k6 runner                                |
+| Field        | Type    | Required | Constraints   | Description                                                                                                        |
+| ------------ | ------- | -------- | ------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `file`       | string  | Yes      |               | Path to the k6 script, relative to the repo root (e.g. `.nurburgdev/traffic.js`)                                   |
+| `cpuCores`   | float   | Yes      | 0 < value ≤ 2 |                                                                                                                    |
+| `memoryMB`   | integer | Yes      | ≤ 4096        |                                                                                                                    |
+| `targetName` | string  | No       |               | Path to the service against which traffic should be run. By default the first service is picked                    |
+| `env`        | table   | No       |               | Environment variables injected into the k6 runner. By Default `HOST` will contain the base to `targetName` service |
 
 ```toml
 [[traffic]]
@@ -183,24 +186,37 @@ memoryMB = 256
 TARGET_URL = "http://app:3000"
 ```
 
-#### `apitest`
+NOTE: the convention to to use `.nurburgdev/traffic.js` as the first load test file
+
+#### `[apitest]`
 
 Path(s) to [Tavern](https://tavern.readthedocs.io/) YAML API test files. The file `.nurburgdev/apitest.tavern.yaml` is auto-discovered if present.
 
+Or `apitest` section can be added explictly
+
+| Field        | Type   | Required | Constraints | Description                                                                                                        |
+| ------------ | ------ | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------ |
+| `file`       | string | No       |             | Path to the tavern yaml, relative to the repo root (e.g. `.nurburgdev/apitest.tavern.yaml`)                        |
+| `targetName` | string | No       |             | Path to the service against which apitest should be run. By default the first service is picked                    |
+| `env`        | table  | No       |             | Environment variables injected into the k6 runner. By Default `HOST` will contain the base to `targetName` service |
+
 ```toml
-apitest = [".nurburgdev/apitest.tavern.yaml"]
+[apitest] 
+file = ".nurburgdev/apitest.tavern.yaml"
 ```
+
+Note: the convention is to use `.nurburgdev/apitest.tavern.yaml` as the tavern test file.
 
 #### `[[dataseeder]]`
 
 Seeds a database component with data before tasks run.
 
-| Field         | Type   | Required | Description                                      |
-| ------------- | ------ | -------- | ------------------------------------------------ |
-| `targetName`  | string | Yes      | Name of the database component to seed           |
-| `file`        | string | No       | Path to a SQL file in the repository             |
-| `url`         | string | No       | URL to an external dataset                       |
-| `targetTable` | string | No       | Target table (required for some dataset formats) |
+| Field         | Type   | Required | Description                                                                                                            |
+| ------------- | ------ | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `targetName`  | string | Yes      | Name of the database component to seed                                                                                 |
+| `file`        | string | No       | Path to a SQL file in the repository. example `.nurburgdev/seeder.sql` or `seeder.sql` . path always from project root |
+| `url`         | string | No       | URL to an external dataset                                                                                             |
+| `targetTable` | string | No       | Target table (required for some dataset formats)                                                                       |
 
 Either `file` or `url` must be set.
 
@@ -288,34 +304,35 @@ For challenges, set `intent: "challenge"` and include a `challengeDetails` block
 
 ```markdown
 ---
+
 ...
 intent: "challenge"
 challengeDetails:
-  id: 1234
-  difficulty: "medium"
-  points: 100
-  language: "go"
+    id: 1234
+    difficulty: "medium"
+    points: 100
+    language: "go"
 ---
 ```
 
-| Field                        | Type    | Required                        | Description                                              |
-| ---------------------------- | ------- | ------------------------------- | -------------------------------------------------------- |
-| `title`                      | string  | Yes                             | Display title of the experiment                          |
-| `author`                     | string  | Yes                             | Author's display name                                    |
-| `authorLink`                 | URL     | Yes                             | Link to the author's profile (e.g. GitHub)               |
-| `authorTitle`                | string  | Yes                             | Author's job title or role                               |
-| `summary`                    | string  | Yes                             | Short description shown in experiment listings           |
-| `publishedOn`                | date    | Yes                             | Publication date (`YYYY-MM-DD`)                          |
-| `tags`                       | array   | Yes                             | At least 2 tags (see valid values below)                 |
-| `intent`                     | string  | Yes                             | `experiment` or `challenge`                              |
-| `challengeDetails`           | object  | Yes (when `intent: challenge`)  | Challenge-specific metadata                              |
-| `challengeDetails.id`        | integer | Yes                             | Numeric challenge ID (1–9999)                            |
-| `challengeDetails.difficulty`| string  | Yes                             | `easy`, `medium`, or `hard`                              |
-| `challengeDetails.points`    | integer | Yes                             | Points awarded for completing the challenge              |
-| `challengeDetails.language`  | string  | Yes                             | `python`, `typescript`, `go`, or `java`                  |
-| `video`                      | string  | No                              | URL to a companion video                                 |
-| `heroImage`                  | string  | No                              | Path to a hero image file                                |
-| `draft`                      | boolean | No                              | Set to `true` to hide from listings. Defaults to `false` |
+| Field                         | Type    | Required                       | Description                                              |
+| ----------------------------- | ------- | ------------------------------ | -------------------------------------------------------- |
+| `title`                       | string  | Yes                            | Display title of the experiment                          |
+| `author`                      | string  | Yes                            | Author's display name                                    |
+| `authorLink`                  | URL     | Yes                            | Link to the author's profile (e.g. GitHub)               |
+| `authorTitle`                 | string  | Yes                            | Author's job title or role                               |
+| `summary`                     | string  | Yes                            | Short description shown in experiment listings           |
+| `publishedOn`                 | date    | Yes                            | Publication date (`YYYY-MM-DD`)                          |
+| `tags`                        | array   | Yes                            | At least 2 tags (see valid values below)                 |
+| `intent`                      | string  | Yes                            | `experiment` or `challenge`                              |
+| `challengeDetails`            | object  | Yes (when `intent: challenge`) | Challenge-specific metadata                              |
+| `challengeDetails.id`         | integer | Yes                            | Numeric challenge ID (1–9999)                            |
+| `challengeDetails.difficulty` | string  | Yes                            | `easy`, `medium`, or `hard`                              |
+| `challengeDetails.points`     | integer | Yes                            | Points awarded for completing the challenge              |
+| `challengeDetails.language`   | string  | Yes                            | `python`, `typescript`, `go`, or `java`                  |
+| `video`                       | string  | No                             | URL to a companion video                                 |
+| `heroImage`                   | string  | No                             | Path to a hero image file                                |
+| `draft`                       | boolean | No                             | Set to `true` to hide from listings. Defaults to `false` |
 
 **Valid tags:** `mysql`, `postgres`, `redis`, `memcached`, `kafka`, `temporal`, `scalability`, `debugging`, `analytics`, `distributed-systems`
 

@@ -9,10 +9,7 @@ cpuCores = 0.5
 memoryMB = 512
 instances = 1
 directory = "challenge-outbox-pattern"
-
-[service.env]
-DATABASE_URL = "postgresql://user:password@postgres:5432/appdb"
-KAFKA_BROKERS = "kafka:9092"
+env = { DATABASE_URL = "postgresql://user:password@postgres:5432/appdb", KAFKA_BROKERS = "kafka:9092"}
 
 [[postgres]]
 name = "postgres"
@@ -29,26 +26,18 @@ cpuCores = 0.5
 memoryMB = 512
 storageGB = 5
 brokers = 1
-
-[[kafka.topics]]
-name = "outbox-events"
-partition = 3
-replicationFactor = 1
+topics = [{name = "outbox-events", partition = 3, replicationFactor = 1}]
 
 [[traffic]]
-file = "challenge-outbox-pattern/.nurburgdev/traffic.js"
+file = ".nurburgdev/traffic.js"
 cpuCores = 0.5
 memoryMB = 256
-
-[traffic.env]
-TARGET_URL = "http://app:3000"
-
-apitest = ["challenge-outbox-pattern/.nurburgdev/apitest.tavern.yaml"]
+env = {HOST = "http://app:3000"}
 
 [[score]]
 name = "ERR_RATE"
 taskName = "traffic"
-threshold = 5.0
+threshold = 0.1
 
 [[score]]
 name = "LATENCY_95"

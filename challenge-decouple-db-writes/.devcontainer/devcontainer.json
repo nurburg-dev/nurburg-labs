@@ -1,5 +1,5 @@
 {
-  "name": "Dev Container",
+  "name": "decouple db writes",
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev",
   "workspaceFolder": "/workspace",

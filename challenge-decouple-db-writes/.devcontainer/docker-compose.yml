@@ -2,7 +2,8 @@ services:
     dev:
         image: mcr.microsoft.com/devcontainers/typescript-node:22
         volumes:
-            - /workspace:/workspace
+            - ../:/workspace
+        command: sleep infinity
         depends_on:
             - postgres
             - kafka
@@ -21,13 +22,9 @@ services:
             KAFKA_PROCESS_ROLES: broker,controller
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-        ports:
-            - 9092:9092
     postgres:
         image: postgres:17.9
         environment:
             POSTGRES_DB: devcontainer
             POSTGRES_PASSWORD: devcontainer
             POSTGRES_USER: devcontainer
-        ports:
-            - 5432:5432

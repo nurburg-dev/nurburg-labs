@@ -47,6 +47,11 @@ For `id` in `challengeDetails` in frontmatter - scan `challenge-*/.nurburgdev/RE
 
 Read `docs/specification-for-experiments.md` the section `Format of an experiment` to understand how to format this file. Consider `<programming-language>` and `<stack>` arguements to create this file.
 
+### Rules to follow
+
+1. all paths in `.nurburgdev/experiment.toml` should be from the from folder created in step 1 as base. Never from the git root as base.
+2. all paths in `.nurburgdev/experiment.toml` should not start with `./`. for example `.nurburgdev/traffic.js` is correct. `./.nurburgdev/traffic.js` is not correct.
+
 ## Step 3: Create `Procfile`
 
 Read `docs/specification-for-experiments.md` the section `Procfile` to understand how to create `Procfile`.
@@ -82,11 +87,22 @@ Any project created should have 1 endpoint `/healthcheck` api
 
 ## Step 4: Create `.nurburgdev/traffic.js`
 
-This is a k6 load tests. Create a 10 second loadtest on `/healthcheck` api 
+This is a k6 load tests. Create a 10 second loadtest on `/healthcheck` api. 
+
+### Rules to follow
+
+1. Assume a `HOST` env var will be provided. Use this env var for creating urls. 
+2. `HOST` env var will be of the format `http://host:port` format. NOT `host:post` or `http://host:port/`. create the urls accordingly.
+
 
 ## Step 5: Create `.nurburgdev/apitest.tavern.yaml`
 
 This is a tavern test file. create 1 test on `/heatlhcheck` which just expects status code 200
+
+### Rules to follow
+
+1. Assume a `HOST` env var will be provided. Use this env var for creating urls. 
+2. `HOST` env var will be of the format `http://host:port` format. NOT `host:post` or `http://host:port/`. create the urls accordingly.
 
 ## Step 6: Setup devcontainer in the challenge folder created in step 1
 

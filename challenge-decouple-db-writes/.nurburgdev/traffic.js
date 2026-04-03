@@ -6,7 +6,7 @@ export const options = {
   vus: 10,
 };
 
-const BASE_URL = __ENV.TARGET_URL || "http://localhost:3000";
+const BASE_URL = __ENV.HOST;
 
 export default function () {
   http.get(`${BASE_URL}/healthcheck`);

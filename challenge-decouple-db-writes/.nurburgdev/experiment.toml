@@ -1,5 +1,8 @@
 description = "Decouple DB writes from the request path using Kafka as an intermediate buffer."
 
+[apitest]
+file = ".nurburgdev/apitest.tavern.yaml"
+
 [[service]]
 name = "app"
 runtime = "nodejs"
@@ -9,10 +12,7 @@ cpuCores = 0.5
 memoryMB = 512
 instances = 1
 directory = "challenge-decouple-db-writes"
-
-[service.env]
-DATABASE_URL = "postgresql://user:password@postgres:5432/appdb"
-KAFKA_BROKERS = "kafka:9092"
+env = {DATABASE_URL = "postgresql://user:password@postgres:5432/appdb", KAFKA_BROKERS = "kafka:9092"}
 
 [[postgres]]
 name = "postgres"
@@ -29,21 +29,13 @@ cpuCores = 0.5
 memoryMB = 512
 storageGB = 5
 brokers = 1
-
-[[kafka.topics]]
-name = "db-writes"
-partition = 3
-replicationFactor = 1
+topics = [{name = "db-writes", partition = 3, replicationFactor = 1}]
 
 [[traffic]]
-file = "challenge-decouple-db-writes/.nurburgdev/traffic.js"
+file = ".nurburgdev/traffic.js"
 cpuCores = 0.5
 memoryMB = 256
-
-[traffic.env]
-TARGET_URL = "http://app:3000"
-
-apitest = ["challenge-decouple-db-writes/.nurburgdev/apitest.tavern.yaml"]
+env = {TARGET_URL = "http://app:3000"}
 
 [[score]]
 name = "ERR_RATE"
