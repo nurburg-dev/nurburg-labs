@@ -1,6 +1,10 @@
 {
-  "name": "tidy-pebble",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
-  "workspaceFolder": "/workspaces/tidy-pebble",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/tidy-pebble,type=bind"
+  "name": "happy-pebble",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspaces/happy-pebble",
+  "features": {
+    "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
+  },
+  "forwardPorts": [3000, 4000]
 }

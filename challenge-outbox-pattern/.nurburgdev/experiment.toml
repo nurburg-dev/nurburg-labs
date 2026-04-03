@@ -1,22 +1,43 @@
 description = "Implement the transactional outbox pattern to reliably publish events to Kafka after a database write."
 
 [[service]]
-name = "app"
+name = "order-service"
 runtime = "nodejs"
 port = 3000
 healthCheckUrl = "/healthcheck"
 cpuCores = 0.5
 memoryMB = 512
 instances = 1
-directory = "challenge-outbox-pattern"
-env = { DATABASE_URL = "postgresql://user:password@postgres:5432/appdb", KAFKA_BROKERS = "kafka:9092"}
+directory = "order-service"
+env = { DATABASE_URL = "postgresql://user:password@pg-orders:5432/orderdb", KAFKA_BROKERS = "kafka:9092", PORT = "3000", HOOKS_CONFIG_V1_ENV_VAR = "IHsgInBvc3RncmVzcWwiOiBbeyJ0eXBlIjogImVycm9yZWRfY29tbWl0IiwgImVycm9yQ291bnQiOiAyLCAiZXJyb3JQcm9iYWJpbGl0eSI6IDF9XX0=" }
 
 [[postgres]]
-name = "postgres"
+name = "pg-orders"
 cpuCores = 0.5
 memoryMB = 512
 storageGB = 5
-dbName = "appdb"
+dbName = "orderdb"
+user = "user"
+password = "password"
+
+[[service]]
+name = "ledger-service"
+runtime = "nodejs"
+port = 4000
+healthCheckUrl = "/healthcheck"
+cpuCores = 0.5
+memoryMB = 512
+instances = 1
+directory = "ledger-service"
+env = { DATABASE_URL = "postgresql://user:password@pg-ledger:5432/ledgerdb", KAFKA_BROKERS = "kafka:9092", PORT = "4000" }
+
+
+[[postgres]]
+name = "pg-ledger"
+cpuCores = 0.5
+memoryMB = 512
+storageGB = 5
+dbName = "ledgerdb"
 user = "user"
 password = "password"
 

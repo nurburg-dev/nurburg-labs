@@ -9,9 +9,9 @@ tags: [kafka, postgres, distributed-systems]
 intent: "challenge"
 draft: true
 challengeDetails:
-  id: 1002
+  id: 0001
   difficulty: "medium"
-  points: 100
+  points: 200
   language: "typescript"
 ---
 

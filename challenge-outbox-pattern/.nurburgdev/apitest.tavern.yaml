@@ -1,9 +1,112 @@
-test_name: Healthcheck API Tests
+test_name: Order total matches ledger total after 10 orders
 
 stages:
-  - name: GET /healthcheck returns 200
+  - name: Create order 1
     request:
-      url: "{tavern.env_vars.HOST}/healthcheck"
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-1"
+        amount: 50.00
+        currency: "USD"
+
+  - name: Create order 2
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-2"
+        amount: 120.50
+        currency: "USD"
+
+  - name: Create order 3
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-3"
+        amount: 75.25
+        currency: "USD"
+
+  - name: Create order 4
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-4"
+        amount: 200.00
+        currency: "USD"
+
+  - name: Create order 5
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-5"
+        amount: 33.75
+        currency: "USD"
+
+  - name: Create order 6
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-6"
+        amount: 88.00
+        currency: "USD"
+
+  - name: Create order 7
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-7"
+        amount: 155.50
+        currency: "USD"
+
+  - name: Create order 8
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-8"
+        amount: 42.00
+        currency: "USD"
+
+  - name: Create order 9
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-9"
+        amount: 99.99
+        currency: "USD"
+
+  - name: Create order 10
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders"
+      method: POST
+      json:
+        customerId: "customer-10"
+        amount: 175.25
+        currency: "USD"
+
+  - name: Wait for ledger consumer to process events then fetch order total
+    request:
+      url: "{tavern.env_vars.HOST_ORDER}/orders/total"
+      method: GET
+    delay_after: 5
+    response:
+      status_code: 200
+      save:
+        json:
+          orders_total: total
+
+  - name: Fetch ledger total and verify it matches order total
+    request:
+      url: "{tavern.env_vars.HOST_LEDGER}/ledger/total"
       method: GET
     response:
       status_code: 200
+      json:
+        total: "{orders_total}"

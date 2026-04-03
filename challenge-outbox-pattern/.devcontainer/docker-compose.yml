@@ -1,0 +1,53 @@
+services:
+    dev:
+        image: mcr.microsoft.com/devcontainers/typescript-node:22
+        command: sleep infinity
+        volumes:
+            - ../:/workspaces/happy-pebble
+        ports:
+            - "3000:3000"
+            - "4000:4000"
+        depends_on:
+            - pg-ledger
+            - pg-orders
+            - kafka
+    kafka:
+        image: apache/kafka:4.0.0
+        environment:
+            CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+            KAFKA_NODE_ID: "1"
+            KAFKA_PROCESS_ROLES: broker,controller
+            KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+            KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+            KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+            KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+    kafka-init:
+        image: apache/kafka:4.0.0
+        depends_on:
+            - kafka
+        command: >
+            /opt/kafka/bin/kafka-topics.sh --create --if-not-exists
+            --bootstrap-server kafka:9092
+            --topic outbox-events
+            --partitions 1
+            --replication-factor 1
+        restart: on-failure
+    pg-ledger:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: ledgerdb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
+
+    pg-orders:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: orderdb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
