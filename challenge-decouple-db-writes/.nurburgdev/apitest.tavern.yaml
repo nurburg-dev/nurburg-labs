@@ -1,4 +1,4 @@
-test_name: Healthcheck API Tests
+test_name: API Tests
 
 stages:
   - name: GET /healthcheck returns 200
@@ -7,3 +7,39 @@ stages:
       method: GET
     response:
       status_code: 200
+      json:
+        status: "ok"
+
+  - name: POST /events ingests a click event
+    request:
+      url: "{tavern.env_vars.HOST}/events"
+      method: POST
+      json:
+        session_id: "550e8400-e29b-41d4-a716-446655440000"
+        element_id: "btn-signup"
+        page_url: "https://example.com/home"
+        x: 120
+        y: 340
+    response:
+      status_code: 201
+      strict: false
+      json:
+        status: "ok"
+      save:
+        json:
+          event_id: id
+
+  - name: GET /events/:id returns the event
+    delay_before: 2
+    request:
+      url: "{tavern.env_vars.HOST}/events/{event_id}"
+      method: GET
+    response:
+      status_code: 200
+      strict: false
+      json:
+        session_id: "550e8400-e29b-41d4-a716-446655440000"
+        element_id: "btn-signup"
+        page_url: "https://example.com/home"
+        x: 120
+        y: 340

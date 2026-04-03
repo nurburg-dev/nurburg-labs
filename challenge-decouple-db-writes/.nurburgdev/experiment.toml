@@ -2,26 +2,30 @@ description = "Decouple DB writes from the request path using Kafka as an interm
 
 [apitest]
 file = ".nurburgdev/apitest.tavern.yaml"
+env = {HOST = "http://events-service:3000"}
 
 [[service]]
-name = "app"
+name = "events-service"
 runtime = "nodejs"
 port = 3000
 healthCheckUrl = "/healthcheck"
 cpuCores = 0.5
 memoryMB = 512
 instances = 1
-directory = "challenge-decouple-db-writes"
-env = {DATABASE_URL = "postgresql://user:password@postgres:5432/appdb", KAFKA_BROKERS = "kafka:9092"}
+env = {DATABASE_URL = "postgresql://user:password@eventsdb:5432/eventsdb", KAFKA_BROKERS = "kafka:9092", PORT=3000, HOOKS_CONFIG_V1_ENV_VAR = "eyAicG9zdGdyZXNxbCI6IFt7InR5cGUiOiAic2xvd19xdWVyeSIsICJkZWxheU1zIjogMzAwIH1dfQ=="}
 
 [[postgres]]
-name = "postgres"
+name = "eventsdb"
 cpuCores = 0.5
 memoryMB = 512
 storageGB = 5
-dbName = "appdb"
+dbName = "eventsdb"
 user = "user"
 password = "password"
+
+[[dataseeder]]
+file = "schema.sql"
+targetName = "eventsdb"
 
 [[kafka]]
 name = "kafka"
@@ -35,7 +39,7 @@ topics = [{name = "db-writes", partition = 3, replicationFactor = 1}]
 file = ".nurburgdev/traffic.js"
 cpuCores = 0.5
 memoryMB = 256
-env = {TARGET_URL = "http://app:3000"}
+env = {HOST = "http://events-service:3000"}
 
 [[score]]
 name = "ERR_RATE"
@@ -45,7 +49,7 @@ threshold = 5.0
 [[score]]
 name = "LATENCY_95"
 taskName = "traffic"
-threshold = 200.0
+threshold = 100.0
 
 [[score]]
 name = "FUNC_TEST"

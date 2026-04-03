@@ -1,9 +1,10 @@
 {
-  "name": "decouple db writes",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "dev",
-  "workspaceFolder": "/workspace",
-  "features": {
-    "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
-  }
+	"name": "decouple db writes",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "dev",
+	"workspaceFolder": "/workspace",
+	"features": {
+		"ghcr.io/rails/devcontainer/features/postgres-client:1": {}
+	},
+	"forwardPorts": [3000]
 }

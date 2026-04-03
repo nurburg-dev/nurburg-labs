@@ -4,27 +4,41 @@ services:
         volumes:
             - ../:/workspace
         command: sleep infinity
+        ports:
+            - "3000:3000"
         depends_on:
-            - postgres
+            - eventsdb
             - kafka
     kafka:
-        image: apache/kafka:3.9.0
+        image: apache/kafka:4.0.0
         environment:
             CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-            KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-            KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-            KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-            KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
             KAFKA_NODE_ID: "1"
-            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
             KAFKA_PROCESS_ROLES: broker,controller
-            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+            KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+            KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+            KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+            KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-    postgres:
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+    kafka-init:
+        image: apache/kafka:4.0.0
+        depends_on:
+            - kafka
+        command: >
+            /opt/kafka/bin/kafka-topics.sh --create --if-not-exists
+            --bootstrap-server kafka:9092
+            --topic db-writes
+            --partitions 1
+            --replication-factor 1
+        restart: on-failure
+    eventsdb:
         image: postgres:17.9
         environment:
-            POSTGRES_DB: devcontainer
-            POSTGRES_PASSWORD: devcontainer
-            POSTGRES_USER: devcontainer
+            POSTGRES_DB: eventsdb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user

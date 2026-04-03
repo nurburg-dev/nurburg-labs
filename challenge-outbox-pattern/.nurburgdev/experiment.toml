@@ -41,29 +41,21 @@ dbName = "ledgerdb"
 user = "user"
 password = "password"
 
+[[dataseeder]]
+file = "ledger-service/schema.sql"
+targetName = "pg-ledger"
+
+[[dataseeder]]
+file = "order-service/schema.sql"
+targetName = "pg-orders"
+
 [[kafka]]
 name = "kafka"
 cpuCores = 0.5
 memoryMB = 512
 storageGB = 5
 brokers = 1
-topics = [{name = "outbox-events", partition = 3, replicationFactor = 1}]
-
-[[traffic]]
-file = ".nurburgdev/traffic.js"
-cpuCores = 0.5
-memoryMB = 256
-env = {HOST = "http://app:3000"}
-
-[[score]]
-name = "ERR_RATE"
-taskName = "traffic"
-threshold = 0.1
-
-[[score]]
-name = "LATENCY_95"
-taskName = "traffic"
-threshold = 200.0
+topics = [{ name = "outbox-events", partition = 3, replicationFactor = 1 }]
 
 [[score]]
 name = "FUNC_TEST"
