@@ -21,10 +21,7 @@ app.get("/healthcheck", (_req, res) => {
 
 app.post("/flight-bookings", async (req, res, next) => {
     try {
-        const body = Airline1FlightBookingBlockRequest.parse({
-            ...req.body,
-            flightDate: new Date(req.body.flightDate),
-        });
+        const body = Airline1FlightBookingBlockRequest.parse(req.body);
         const booking = await service.blockFlightBooking(body);
         res.status(200).json(booking);
     } catch (err) {
@@ -47,6 +44,15 @@ app.post("/flight-bookings/cancel", async (req, res, next) => {
         const body = Airline1FlightBookingCancelRequest.parse(req.body);
         const booking = await service.cancelFlightBooking(body);
         res.status(200).json(booking);
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.get("/flight-bookings", async (_req, res, next) => {
+    try {
+        const bookings = await service.getConfirmedBookings();
+        res.status(200).json(bookings);
     } catch (err) {
         next(err);
     }

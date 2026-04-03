@@ -1,5 +1,5 @@
-import { RowDataPacket } from "mysql2/promise";
 import { MySQLPool } from "nurburg-libs";
+import { RowDataPacket } from "mysql2/promise";
 import {
     FlightBooking,
     Airline2FlightBookingBlockRequest,
@@ -111,6 +111,18 @@ export class Airline2Service {
         } catch (err) {
             await client.query("ROLLBACK");
             throw err;
+        } finally {
+            client.release();
+        }
+    }
+
+    async getConfirmedBookings(): Promise<FlightBooking[]> {
+        const client = await this.pool.getConnection();
+        try {
+            const [rows] = await client.query<RowDataPacket[]>(
+                `SELECT * FROM flight_bookings WHERE status = 'CONFIRMED' ORDER BY created_at DESC`
+            );
+            return rows as FlightBooking[];
         } finally {
             client.release();
         }

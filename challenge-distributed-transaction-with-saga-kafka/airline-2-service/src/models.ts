@@ -14,7 +14,7 @@ export type FlightBooking = z.infer<typeof FlightBooking>
 // create flight booking with state "BLOCKED"
 export const Airline2FlightBookingBlockRequest = z.object({
     bookingId: z.string(),
-    flightDate: z.date(),
+    flightDate: z.coerce.date(),
     seatCount: z.int(),
 })
 export type Airline2FlightBookingBlockRequest = z.infer<typeof Airline2FlightBookingBlockRequest>

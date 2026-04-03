@@ -105,6 +105,18 @@ export class Airline1Service {
         }
     }
 
+    async getConfirmedBookings(): Promise<FlightBooking[]> {
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                `SELECT * FROM flight_bookings WHERE status = 'CONFIRMED' ORDER BY created_at DESC`
+            );
+            return result.rows as FlightBooking[];
+        } finally {
+            client.release();
+        }
+    }
+
     async cancelFlightBooking(req: Airline1FlightBookingCancelRequest): Promise<FlightBooking> {
         const client = await this.pool.connect();
         try {
