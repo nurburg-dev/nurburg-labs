@@ -75,8 +75,11 @@ Everything we just built — the outbox table, the relay, the delete-on-publish 
 The Write-Ahead Log is Postgres's durability backbone. Before any change touches the actual data files, Postgres writes a description of that change to the WAL — a sequential, append-only log on disk. If the process crashes mid-write, Postgres replays the WAL on restart to recover to a consistent state. "Write-ahead" means the log entry always lands before the data page. This sequentiality is also why WAL is fast — sequential disk writes are far cheaper than random page updates. Everything Postgres builds on top — leader-follower replication, point-in-time recovery, logical decoding — is ultimately reading from this one log.
 
 Which means you can use the WAL itself as the outbox — streaming change events directly from Postgres's internal log, without an outbox table at all. The relay reads from the WAL instead of polling a table, removing the extra write load entirely.
-If you want to implement that, the challenge below walks you through building a WAL-based integration from scratch.
 
-![Try Challenge](https://res.cloudinary.com/dclydguc9/image/upload/v1774678575/nurburg-challenge-button_imj0bu.svg)
+### Challenge
+
+If you want to implement to outbox pattern why not try this challenge on [nurburg.dev](https://nurburg.dev).
+
+[![Try Challenge](https://nurburg.dev/cta/challenge/typescript/view)](https://nurburg.dev/nurburg-labs:challenge-outbox-pattern)
 
 > **Note:** The scenario in this post is fictional but inspired by patterns seen in real production systems
