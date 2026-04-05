@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "DEBUG=nurburg HOOKS_CONFIG_V1_ENV_VAR='eyJmZXRjaCI6W3sidHlwZSI6InBvc3RfZXJyb3IiLCJlcnJvclByb2JhYmlsaXR5IjowLjUsImVycm9yQ291bnQiOjEwLCJ1cmxQYXR0ZXJuIjoiL2ZsaWdodC1ib29raW5ncy9ibG9jayJ9XX0=' PORT=3000 DATABASE_URL=postgresql://user:password@pg-booking-service:5432/bookingdb KAFKA_BROKERS=kafka:9092 AIRLINE1_URL=http://localhost:4000 AIRLINE2_URL=http://localhost:5000 ts-node src/index.ts",
+    "dev": "HOOKS_CONFIG_V1_ENV_VAR='eyJmZXRjaCI6W3sidHlwZSI6InBvc3RfZXJyb3IiLCJlcnJvclByb2JhYmlsaXR5IjowLjUsImVycm9yQ291bnQiOjEwLCJ1cmxQYXR0ZXJuIjoiL2ZsaWdodC1ib29raW5ncy9ibG9jayJ9XX0=' PORT=3000 DATABASE_URL=postgresql://user:password@pg-booking-service:5432/bookingdb KAFKA_BROKERS=kafka:9092 AIRLINE1_URL=http://localhost:4000 AIRLINE2_URL=http://localhost:5000 ts-node src/index.ts",
     "psql": "PGPASSWORD='password' psql -h pg-booking-service -U user -d bookingdb"
   },
   "dependencies": {
