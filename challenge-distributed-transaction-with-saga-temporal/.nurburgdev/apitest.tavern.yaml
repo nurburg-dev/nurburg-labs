@@ -1,0 +1,35 @@
+test_name: "Healthcheck - booking-service"
+includes:
+  - !include common.yaml
+
+stages:
+  - name: "GET /healthcheck returns 200"
+    request:
+      url: "{HOST_BOOKING_SERVICE}/healthcheck"
+      method: GET
+    response:
+      status_code: 200
+---
+test_name: "Healthcheck - airline-1-service"
+includes:
+  - !include common.yaml
+
+stages:
+  - name: "GET /healthcheck returns 200"
+    request:
+      url: "{HOST_AIRLINES_1}/healthcheck"
+      method: GET
+    response:
+      status_code: 200
+---
+test_name: "Healthcheck - airline-2-service"
+includes:
+  - !include common.yaml
+
+stages:
+  - name: "GET /healthcheck returns 200"
+    request:
+      url: "{HOST_AIRLINES_2}/healthcheck"
+      method: GET
+    response:
+      status_code: 200
