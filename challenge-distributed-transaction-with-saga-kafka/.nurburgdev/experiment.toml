@@ -20,7 +20,7 @@ cpuCores = 0.5
 memoryMB = 512
 instances = 1
 directory = "airline-1-service"
-env = { DATABASE_URL = "postgresql://user:password@pg-airline1:5432/airline1db", PORT = "4000" }
+env = { DATABASE_URL = "postgresql://user:password@pg-airline1:5432/airline1db", KAFKA_BROKERS = "kafka:9092", PORT = "4000" }
 
 [[service]]
 name = "airline-2-service"
@@ -31,7 +31,7 @@ cpuCores = 0.5
 memoryMB = 512
 instances = 1
 directory = "airline-2-service"
-env = { MYSQL_HOST = "mysql-airline2", MYSQL_PORT = "3306", MYSQL_USER = "user", MYSQL_PASSWORD = "password", MYSQL_DATABASE = "airline2db", PORT = "5000" }
+env = { MYSQL_HOST = "mysql-airline2", MYSQL_PORT = "3306", MYSQL_USER = "user", MYSQL_PASSWORD = "password", MYSQL_DATABASE = "airline2db", KAFKA_BROKERS = "kafka:9092", PORT = "5000" }
 
 [[postgres]]
 name = "pg-booking-service"

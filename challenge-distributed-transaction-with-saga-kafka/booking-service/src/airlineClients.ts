@@ -1,3 +1,5 @@
+import { hookedFetch } from "nurburg-libs";
+
 interface FlightBookingBlockRequest {
     bookingId: string;
     flightDate: string;
@@ -18,9 +20,11 @@ interface FlightBooking {
     updated_at: string;
 }
 
+const ndFetch = hookedFetch(fetch)
+
 // TODO: create hooked fetch api
 async function post<T>(url: string, body: unknown): Promise<T> {
-    const res = await fetch(url, {
+    const res = await ndFetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -40,7 +44,7 @@ export class Airline1Client {
     }
 
     blockFlightBooking(req: FlightBookingBlockRequest): Promise<FlightBooking> {
-        return post(`${this.baseUrl}/flight-bookings`, req);
+        return post(`${this.baseUrl}/flight-bookings/block`, req);
     }
 
     confirmFlightBooking(req: FlightBookingStateRequest): Promise<FlightBooking> {
@@ -60,7 +64,7 @@ export class Airline2Client {
     }
 
     blockFlightBooking(req: FlightBookingBlockRequest): Promise<FlightBooking> {
-        return post(`${this.baseUrl}/flight-bookings`, req);
+        return post(`${this.baseUrl}/flight-bookings/block`, req);
     }
 
     confirmFlightBooking(req: FlightBookingStateRequest): Promise<FlightBooking> {

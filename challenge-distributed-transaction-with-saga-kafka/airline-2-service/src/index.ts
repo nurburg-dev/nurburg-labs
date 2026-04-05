@@ -26,7 +26,7 @@ app.get("/healthcheck", (_req, res) => {
     res.status(200).json({ status: "ok" });
 });
 
-app.post("/flight-bookings", async (req, res, next) => {
+app.post("/flight-bookings/block", async (req, res, next) => {
     try {
         const body = Airline2FlightBookingBlockRequest.parse(req.body);
         const booking = await service.blockFlightBooking(body);
@@ -60,6 +60,24 @@ app.get("/flight-bookings", async (_req, res, next) => {
     try {
         const bookings = await service.getConfirmedBookings();
         res.status(200).json(bookings);
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.get("/flight-bookings/confirmed-count", async (_req, res, next) => {
+    try {
+        const bookings = await service.getConfirmedBookings();
+        res.status(200).json({ count: bookings.length });
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.get("/flight-bookings/blocked-count", async (_req, res, next) => {
+    try {
+        const count = await service.getBlockedCount();
+        res.status(200).json({ count });
     } catch (err) {
         next(err);
     }

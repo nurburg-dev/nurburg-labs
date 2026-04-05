@@ -1,35 +1,245 @@
-test_name: "Healthcheck - booking-service"
-includes:
-  - !include common.yaml
-
+test_name: "Booking service healthcheck"
 stages:
   - name: "GET /healthcheck returns 200"
     request:
-      url: "{HOST_BOOKING_SERVICE}/healthcheck"
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/healthcheck"
       method: GET
     response:
       status_code: 200
 ---
-test_name: "Healthcheck - airline-1-service"
-includes:
-  - !include common.yaml
-
+test_name: "Airline-1 service healthcheck"
 stages:
   - name: "GET /healthcheck returns 200"
     request:
-      url: "{HOST_AIRLINES_1}/healthcheck"
+      url: "{tavern.env_vars.HOST_AIRLINES_1}/healthcheck"
       method: GET
     response:
       status_code: 200
 ---
-test_name: "Healthcheck - airline-2-service"
-includes:
-  - !include common.yaml
-
+test_name: "Airline-2 service healthcheck"
 stages:
   - name: "GET /healthcheck returns 200"
     request:
-      url: "{HOST_AIRLINES_2}/healthcheck"
+      url: "{tavern.env_vars.HOST_AIRLINES_2}/healthcheck"
       method: GET
     response:
       status_code: 200
+---
+test_name: "Saga: 10 bookings converge across all services"
+stages:
+  - name: "POST booking 1"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-1"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 2"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-2"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 3"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-3"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 4"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-4"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 5"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-5"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 6"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-6"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 7"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-7"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 8"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-8"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 9"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-9"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "POST booking 10"
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings"
+      method: POST
+      json:
+        customerId: "customer-10"
+        amount: 450.00
+        seats: 1
+        date: "2026-04-10"
+        flightLegs:
+          - airlines: "airline-1"
+            flightNumber: "A1-101"
+          - airlines: "airline-2"
+            flightNumber: "A2-201"
+    response:
+      status_code: 200
+
+  - name: "Wait for sagas to complete then fetch booking-service confirmed count"
+    delay_before: 10
+    request:
+      url: "{tavern.env_vars.HOST_BOOKING_SERVICE}/bookings/confirmed-count"
+      method: GET
+    response:
+      status_code: 200
+      save:
+        json:
+          confirmed_count: count
+
+  - name: "airline-1 confirmed count matches booking-service"
+    request:
+      url: "{tavern.env_vars.HOST_AIRLINES_1}/flight-bookings/confirmed-count"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        count: !int "{confirmed_count}"
+
+  - name: "airline-2 confirmed count matches booking-service"
+    request:
+      url: "{tavern.env_vars.HOST_AIRLINES_2}/flight-bookings/confirmed-count"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        count: !int "{confirmed_count}"
+
+  - name: "airline-1 has no blocked flight bookings"
+    request:
+      url: "{tavern.env_vars.HOST_AIRLINES_1}/flight-bookings/blocked-count"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        count: 0
+
+  - name: "airline-2 has no blocked flight bookings"
+    request:
+      url: "{tavern.env_vars.HOST_AIRLINES_2}/flight-bookings/blocked-count"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        count: 0

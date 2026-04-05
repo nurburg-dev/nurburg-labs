@@ -117,6 +117,18 @@ export class Airline1Service {
         }
     }
 
+    async getBlockedCount(): Promise<number> {
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                `SELECT COUNT(*) AS count FROM flight_bookings WHERE status = 'BLOCKED'`
+            );
+            return parseInt(result.rows[0].count, 10);
+        } finally {
+            client.release();
+        }
+    }
+
     async cancelFlightBooking(req: Airline1FlightBookingCancelRequest): Promise<FlightBooking> {
         const client = await this.pool.connect();
         try {

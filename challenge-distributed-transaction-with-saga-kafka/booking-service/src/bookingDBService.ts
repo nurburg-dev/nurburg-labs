@@ -1,4 +1,7 @@
 import { PgPool } from "nurburg-libs";
+import { z } from "zod";
+import { Airline1Client, Airline2Client } from "./airlineClients";
+import { BookingRequest } from "./models";
 
 interface Booking {
     booking_id: string;
@@ -10,7 +13,11 @@ interface Booking {
 }
 
 export class BookingDBService {
-    constructor(private readonly pool: PgPool) {}
+    constructor(
+        private readonly pool: PgPool,
+        private readonly airline1: Airline1Client,
+        private readonly airline2: Airline2Client,
+    ) {}
 
     async createPendingBooking(bookingId: string, customerId: string, totalAmount: number): Promise<Booking> {
         const client = await this.pool.connect();
@@ -75,6 +82,37 @@ export class BookingDBService {
             throw err;
         } finally {
             client.release();
+        }
+    }
+
+    // Naive SAGA: sequential steps, no reliable execution guarantee.
+    // Each successful step pushes a compensation; on failure they run in reverse.
+    async orchestrateBookingSaga(bookingId: string, request: z.infer<typeof BookingRequest>): Promise<Booking> {
+        const flightDate = request.date.toISOString().split("T")[0];
+        const blockReq = { bookingId, flightDate, seatCount: request.seats };
+        const compensations: Array<() => Promise<unknown>> = [];
+
+        try {
+            await this.airline1.blockFlightBooking(blockReq);
+            compensations.push(() => this.airline1.cancelFlightBooking({ bookingId }));
+
+            await this.airline2.blockFlightBooking(blockReq);
+            compensations.push(() => this.airline2.cancelFlightBooking({ bookingId }));
+
+            await this.createPendingBooking(bookingId, request.customerId, request.amount);
+            compensations.push(() => this.cancelBooking(bookingId));
+
+            // No compensation pushed after confirms — once an airline confirms a seat,
+            // it cannot be undone via a simple cancel; requires a separate refund flow.
+            await this.airline1.confirmFlightBooking({ bookingId });
+            await this.airline2.confirmFlightBooking({ bookingId });
+
+            return await this.confirmPendingBooking(bookingId);
+        } catch (err) {
+            for (const compensate of compensations.reverse()) {
+                await compensate();
+            }
+            throw err;
         }
     }
 }
