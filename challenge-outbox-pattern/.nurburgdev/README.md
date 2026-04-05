@@ -57,9 +57,9 @@ cd ledger-service && npm run psql
 
 ## Schema files
 
-⚠️ REMEMBER TO DO FOLLOW FOLLOWING BEFORE STARTING DEVELOMENT
+⚠️ BEFORE STARTING DEVELOPMENT ⚠️
 
-1. `order-service/schema.sql` defines the `orders` table. Apply the schema before development- using `npm run psql -- -f schema.sql`
+1. `order-service/schema.sql` has the schema for `order-service`. Apply the schema before development- using `npm run psql -- -f schema.sql`
 2. `ledger-service/schema.sql` defines the `ledger_entries` table. Apply the schema before development- using `npm run psql -- -f schema.sql`
 3. existing table schemas shouldn't be altered in any way. New tables could be added to schema.sql. For development you should manually create these tables by connecting to Postgres from command-line tool as describe in the preceding section.
 
@@ -96,7 +96,7 @@ Implement the transactional outbox pattern in `order-service`:
 3. Add a background **relay process** using a `setInterval` loop in the same process— that polls unpublished outbox rows, produces them to Kafka, and marks them `published = true`.
 4. `ledger-service` must consume `outbox-events` and persist entries to `ledger_entries` so that `GET /ledger/total` reflects all processed orders.
 
-🏆 Success criteria: after posting 10 orders and waiting a few seconds. Even if you observe failures while creating order the total should match after a few seconds.
+🏆 Success criteria- After posting 10 orders and waiting a few seconds, even if you observe failures while creating orders the total should match after a few seconds. 🏆
 
 ## Constraints
 
@@ -108,7 +108,7 @@ Implement the transactional outbox pattern in `order-service`:
 
 ## Evaluation criteria
 
-- **Functional tests** The test suite posts 10 orders, waits 5 seconds, then asserts `GET /orders/total` equals `GET /ledger/total`. All tests must pass.
+- **Functional tests** The test suite posts 10 orders while simulating failures, waits 5 seconds. Then it checks if `ledger_service` and `order_service` totals are matching.
 
 ## Hints
 
