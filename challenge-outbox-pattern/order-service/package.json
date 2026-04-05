@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "PORT=3000 DATABASE_URL=postgresql://user:password@pg-orders:5432/orderdb KAFKA_BROKERS=kafka:9092 ts-node src/index.ts",
+    "dev": "PORT=3000 HOOKS_CONFIG_V1_ENV_VAR=IHsgInBvc3RncmVzcWwiOiBbeyJ0eXBlIjogImVycm9yZWRfY29tbWl0IiwgImVycm9yQ291bnQiOiAyLCAiZXJyb3JQcm9iYWJpbGl0eSI6IDF9XX0= DATABASE_URL=postgresql://user:password@pg-orders:5432/orderdb KAFKA_BROKERS=kafka:9092 ts-node src/index.ts",
     "psql": "PGPASSWORD='password' psql -h pg-orders -U user -d orderdb"
   },
   "dependencies": {
