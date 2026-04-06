@@ -1,0 +1,14 @@
+services:
+    dev:
+        image: mcr.microsoft.com/devcontainers/typescript-node:22
+        command: sleep infinity
+        volumes:
+            - ../:/workspaces/autumn-harbor
+        depends_on:
+            - userdb
+    userdb:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: userdb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
