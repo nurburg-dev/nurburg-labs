@@ -42,6 +42,20 @@ app.get("/bookings", async (_req, res, next) => {
 	}
 });
 
+app.get("/bookings/confirmed-count", async (_req, res, next) => {
+	const client = await pool.connect();
+	try {
+		const result = await client.query(
+			`SELECT COUNT(*) AS count FROM bookings WHERE status = 'CONFIRMED'`,
+		);
+		res.status(200).json({ count: parseInt(result.rows[0].count) });
+	} catch (err) {
+		next(err);
+	} finally {
+		client.release();
+	}
+});
+
 app.use(
 	(
 		err: Error,
