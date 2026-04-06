@@ -109,7 +109,7 @@ cd airline-2-service && npm run mysql -- < schema.sql
 
 ## Understanding how transactionality is broken
 
-The Saga pattern breaks a distributed transaction into a sequence of local transactions, each paired with a compensating action that can undo it if a later step fails. Saga pattern relies on each participant being able to roll back its own step independently. When the orchestrator crashes mid-saga or a compensation call itself fails, partial state leaks through. [Read more about the Saga pattern](https://nurburg.dev/nurburg-dev/nurburg-labs:blog-distributed-transaction-with-saga-kafka).
+The Saga pattern breaks a distributed transaction into a sequence of local transactions, each paired with a compensating action that can undo it if a later step fails. Saga pattern relies on each participant being able to roll back its own step independently. When the orchestrator crashes mid-saga or a compensation call itself fails, partial state leaks through. [Read more about the Saga pattern](https://nurburg.dev/nurburg-dev/nurburg-labs:blog-distributed-transaction-with-saga-temporal).
 
 The current implementation of saga lives in `booking-service/src/bookingDBService.ts` in the `orchestrateBookingSaga` method. It calls `airline1.blockFlightBooking` then `airline2.blockFlightBooking` via direct HTTP.
 
