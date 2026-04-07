@@ -7,6 +7,7 @@ authorLink: "https://github.com/anunaybiswas"
 authorTitle: "Software Engineer"
 intent: "challenge"
 draft: false
+publishedOn: 2026-04-07
 challengeDetails:
   id: 0000
   difficulty: "easy"
