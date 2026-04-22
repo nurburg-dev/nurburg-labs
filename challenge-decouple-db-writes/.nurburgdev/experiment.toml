@@ -55,3 +55,15 @@ threshold = 100.0
 name = "FUNC_TEST"
 taskName = "apitest-0"
 threshold = 100.0
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "events-service"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "eventsdb"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "MESSAGES_IN_RATE", "BYTES_IN_RATE", "BYTES_OUT_RATE", "CONSUMER_GROUP_LAG"]
+componentName = "kafka"

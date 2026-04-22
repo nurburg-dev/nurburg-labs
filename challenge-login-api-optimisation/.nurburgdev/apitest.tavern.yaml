@@ -1,0 +1,36 @@
+test_name: Login API functional tests
+
+stages:
+  - name: Valid login for yvette52
+    request:
+      url: "{tavern.env_vars.HOST}/auth/login"
+      method: POST
+      json:
+        email: "yvette52@example.org"
+        password: "password123"
+    response:
+      status_code: 200
+      json:
+        token: !anystr
+
+  - name: Valid login for james37
+    request:
+      url: "{tavern.env_vars.HOST}/auth/login"
+      method: POST
+      json:
+        email: "james37@example.org"
+        password: "password123"
+    response:
+      status_code: 200
+      json:
+        token: !anystr
+
+  - name: Wrong password returns 401
+    request:
+      url: "{tavern.env_vars.HOST}/auth/login"
+      method: POST
+      json:
+        email: "yvette52@example.org"
+        password: "wrongpassword"
+    response:
+      status_code: 401

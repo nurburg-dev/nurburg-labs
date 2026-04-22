@@ -77,6 +77,13 @@ targetName = "pg-airline1"
 file = "airline-2-service/schema.sql"
 targetName = "mysql-airline2"
 
+[[traffic]]
+file = ".nurburgdev/traffic.js"
+cpuCores = 0.5
+memoryMB = 256
+targetName = "booking-service"
+env = { HOST = "http://booking-service:3000" }
+
 [apitest]
 file = ".nurburgdev/apitest.tavern.yaml"
 env = { HOST_BOOKING_SERVICE = "http://booking-service:3000", HOST_AIRLINES_1 = "http://airline-1-service:4000", HOST_AIRLINES_2 = "http://airline-2-service:5000" }
@@ -85,3 +92,41 @@ env = { HOST_BOOKING_SERVICE = "http://booking-service:3000", HOST_AIRLINES_1 = 
 name = "FUNC_TEST"
 taskName = "apitest-0"
 threshold = 100.0
+
+[[score]]
+name = "ERR_RATE"
+taskName = "traffic"
+threshold = 5.0
+
+[[score]]
+name = "LATENCY_95"
+taskName = "traffic"
+threshold = 500.0
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "booking-service"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "airline-1-service"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "airline-2-service"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "pg-booking-service"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "pg-airline1"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "CONNECTION_USAGE"]
+componentName = "mysql-airline2"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "WORKFLOW_COMPLETION_RATE", "WORKFLOW_TASK_SCHEDULE_TO_START_P99", "ACTIVITY_SCHEDULE_TO_START_P99"]
+componentName = "temporal"

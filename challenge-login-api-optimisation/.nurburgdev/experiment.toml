@@ -34,6 +34,15 @@ cpuCores = 0.5
 memoryMB = 256
 env = {HOST = "http://challenge:3000"}
 
+[apitest]
+file = ".nurburgdev/apitest.tavern.yaml"
+env = { HOST = "http://challenge:3000" }
+
+[[score]]
+name = "FUNC_TEST"
+taskName = "apitest-0"
+threshold = 100.0
+
 [[score]]
 name = "ERR_RATE"
 taskName = "traffic"
@@ -43,3 +52,11 @@ threshold = 5.0
 name = "LATENCY_95"
 taskName = "traffic"
 threshold = 100.0
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "challenge"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "userdb"

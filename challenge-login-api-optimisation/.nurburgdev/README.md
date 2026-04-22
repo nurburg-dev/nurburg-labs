@@ -21,8 +21,6 @@ It's Black Friday. Your e-commerce platform is running a 50% off sale. Thousands
 
 The login query hits the `users` table on `email`. Something about that is very slow.
 
----
-
 ## Setup
 
 ```bash
@@ -35,8 +33,6 @@ npm run ingest-data
 # Start service
 npm install && npm run dev
 ```
-
----
 
 ## See It Break
 
@@ -82,7 +78,6 @@ On the local 55-row dataset you'll see output like this:
 
 **The signal to look for:** `Seq Scan` on a table being filtered by a column. That column needs an index.
 
-
 ## Your Task
 
 The login query filters users by `email`. Without an index, Postgres does a full table scan on every login request — every row, every time.
@@ -110,7 +105,6 @@ Verify your fix worked by running `EXPLAIN ANALYZE` again. The query plan must n
     The query filters by email. What database feature speeds up column lookups?
     Read up on <a href="https://www.postgresql.org/docs/current/indexes-intro.html">Postgres indexes</a> — specifically the B-tree type, which is the default and handles equality lookups like <code>WHERE email = ?</code>.
 </details>
-
 
 ## Deploy
 

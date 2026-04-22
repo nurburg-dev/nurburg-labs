@@ -57,7 +57,48 @@ storageGB = 5
 brokers = 1
 topics = [{ name = "outbox-events", partition = 3, replicationFactor = 1 }]
 
+[[traffic]]
+file = ".nurburgdev/traffic.js"
+cpuCores = 0.5
+memoryMB = 256
+targetName = "order-service"
+env = { HOST_ORDER = "http://order-service:3000" }
+
+[apitest]
+file = ".nurburgdev/apitest.tavern.yaml"
+env = { HOST_ORDER = "http://order-service:3000", HOST_LEDGER = "http://ledger-service:4000" }
+
 [[score]]
 name = "FUNC_TEST"
 taskName = "apitest-0"
 threshold = 100.0
+
+[[score]]
+name = "ERR_RATE"
+taskName = "traffic"
+threshold = 5.0
+
+[[score]]
+name = "LATENCY_95"
+taskName = "traffic"
+threshold = 500.0
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "order-service"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "ledger-service"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "pg-orders"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "pg-ledger"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "MESSAGES_IN_RATE", "BYTES_IN_RATE", "BYTES_OUT_RATE", "CONSUMER_GROUP_LAG"]
+componentName = "kafka"

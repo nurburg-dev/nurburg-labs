@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS flights (
 
 INSERT INTO flights (flight_id, flight_number, flight_date, from_airport, to_airport, seat_count, available_seat_count)
 VALUES
-    ('a1f00000-0000-0000-0000-000000000001', 'A1-101', '2026-04-10', 'IXD', 'BLR', 100, 100),
-    ('a1f00000-0000-0000-0000-000000000002', 'A1-102', '2026-04-11', 'IXD', 'BLR', 100, 100)
+    ('a1f00000-0000-0000-0000-000000000001', 'A1-101', '2026-04-10', 'IXD', 'BLR', 1000, 1000),
+    ('a1f00000-0000-0000-0000-000000000002', 'A1-102', '2026-04-11', 'IXD', 'BLR', 1000, 1000)
 ON CONFLICT (flight_id) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS flight_bookings (
