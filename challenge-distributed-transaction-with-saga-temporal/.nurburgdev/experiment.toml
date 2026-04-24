@@ -90,7 +90,7 @@ env = { HOST_BOOKING_SERVICE = "http://booking-service:3000", HOST_AIRLINES_1 = 
 
 [[score]]
 name = "FUNC_TEST"
-taskName = "apitest-0"
+taskName = "apitest"
 threshold = 100.0
 
 [[score]]

@@ -53,7 +53,7 @@ threshold = 100.0
 
 [[score]]
 name = "FUNC_TEST"
-taskName = "apitest-0"
+taskName = "apitest"
 threshold = 100.0
 
 [[telemetry]]

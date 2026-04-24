@@ -70,7 +70,7 @@ env = { HOST_ORDER = "http://order-service:3000", HOST_LEDGER = "http://ledger-s
 
 [[score]]
 name = "FUNC_TEST"
-taskName = "apitest-0"
+taskName = "apitest"
 threshold = 100.0
 
 [[score]]
