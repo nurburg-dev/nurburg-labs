@@ -1,0 +1,77 @@
+description = "Cache stampede on a hot product key. Fix it with single-flight, jittered TTLs, stale-while-revalidate, or XFetch."
+
+[[service]]
+name = "app"
+runtime = "nodejs"
+port = 3000
+healthCheckUrl = "/healthcheck"
+cpuCores = 1.0
+memoryMB = 512
+instances = 1
+env = {DATABASE_URL = "postgresql://user:password@productdb:5432/productdb", REDIS_URL = "redis://cache:6379", PORT = "3000"}
+
+[[postgres]]
+name = "productdb"
+cpuCores = 0.5
+memoryMB = 512
+storageGB = 5
+dbName = "productdb"
+user = "user"
+password = "password"
+
+[[redis]]
+name = "cache"
+cpuCores = 0.5
+memoryMB = 256
+storageGB = 1
+password = ""
+
+[[dataseeder]]
+file = "schema.sql"
+targetName = "productdb"
+
+[[traffic]]
+file = ".nurburgdev/traffic.js"
+cpuCores = 0.5
+memoryMB = 256
+env = {HOST = "http://app:3000"}
+
+[apitest]
+file = ".nurburgdev/apitest.tavern.yaml"
+env = {HOST = "http://app:3000"}
+
+[[score]]
+name = "ERR_RATE"
+taskName = "traffic"
+threshold = 5.0
+
+[[score]]
+name = "LATENCY_95"
+taskName = "traffic"
+threshold = 300.0
+
+[[score]]
+name = "FUNC_TEST"
+taskName = "apitest"
+threshold = 100.0
+
+[[score]]
+name = "POSTGRESQL_CPU"
+componentName = "productdb"
+threshold = 60.0
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "app"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "productdb"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "COMMANDS_PER_SECOND", "CONNECTED_CLIENTS"]
+componentName = "cache"
+
+[[telemetry]]
+name = ["P95_DURATION", "ERROR_RATE", "VUS", "REQUEST_PER_MIN"]
+taskName = "traffic"

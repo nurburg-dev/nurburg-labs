@@ -1,0 +1,19 @@
+services:
+    dev:
+        image: mcr.microsoft.com/devcontainers/typescript-node:22
+        volumes:
+            - ../:/workspace
+        command: sleep infinity
+        ports:
+            - "3000:3000"
+        depends_on:
+            - productdb
+            - cache
+    productdb:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: productdb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
+    cache:
+        image: redis:7-alpine

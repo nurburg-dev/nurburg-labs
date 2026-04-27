@@ -1,0 +1,27 @@
+test_name: Cache stampede challenge functional tests
+
+stages:
+  - name: Healthcheck returns 200
+    request:
+      url: "{tavern.env_vars.HOST}/healthcheck"
+      method: GET
+    response:
+      status_code: 200
+
+  - name: Product 1 returns valid JSON
+    request:
+      url: "{tavern.env_vars.HOST}/product/1"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        id: !anyint
+        name: !anystr
+        price: !anyfloat
+
+  - name: Unknown product returns 404
+    request:
+      url: "{tavern.env_vars.HOST}/product/99999"
+      method: GET
+    response:
+      status_code: 404
