@@ -17,9 +17,13 @@ challengeDetails:
 
 ## The Incident
 
-It's Black Friday. Your e-commerce platform is running a 50% off sale. Thousands of users are trying to log in — and every login is taking 10+ seconds. Customers are rage-quitting. Revenue is bleeding. Your phone won't stop.
+It's Black Friday. Your e-commerce platform is running a 50% off sale. Thousands of users are trying to log in — and every login is taking 10+ seconds. Customers are rage-quitting. Revenue is bleeding. Your phone won't stop buzzing with enquiry from business teams.
 
-The login query hits the `users` table on `email`. Something about that is very slow.
+You look at the metrics and see this.
+
+![P95 Latency](https://nurburg.dev/f9a933f4-922d-4f99-927e-c7f57447bc2f/__scratch_pad__/perf/ga1ggv3/P95_DURATION?taskName=traffic)
+
+The login API hits the `users` table on `email`. Something about this API is extremely slow.
 
 ## Setup
 
@@ -46,7 +50,7 @@ The local dataset is only ~50 rows — too small to feel slow. Locally the login
 
 ### Diagnose with a query plan
 
-Since you can't feel the slowness locally, use `EXPLAIN ANALYZE` to see *how* Postgres is executing the login query:
+Since you can't feel the slowness locally, use `EXPLAIN ANALYZE` to see _how_ Postgres is executing the login query:
 
 ```bash
 npm run psql
@@ -91,6 +95,7 @@ npm run psql -- -c "<your index here>"
 Verify your fix worked by running `EXPLAIN ANALYZE` again. The query plan must no longer show `Seq Scan on users` — you should see `Index Scan` instead.
 
 **Success criteria while testing on production** (evaluated at 5M users):
+
 - `p95 < 500ms`
 - `error rate < 1%`
 
@@ -115,4 +120,3 @@ git add schema.sql
 git commit -m "your message"
 git push origin main
 ```
-

@@ -7,7 +7,7 @@ summary: "Implement the transactional outbox pattern to reliably publish events 
 publishedOn: 2026-04-01
 tags: [kafka, postgres, distributed-systems]
 intent: "challenge"
-draft: true
+draft: false
 challengeDetails:
   id: 0001
   difficulty: "hard"
@@ -28,7 +28,7 @@ Your job: debug how can this happened and fix it so that order-service and ledge
 The environment has two Node.js services, two Postgres databases, and a Kafka cluster pre-provisioned for you.
 
 | Resource         | Detail                                          |
-|------------------|-------------------------------------------------|
+| ---------------- | ----------------------------------------------- |
 | `order-service`  | port `3000`, database `orderdb` on `pg-orders`  |
 | `ledger-service` | port `4000`, database `ledgerdb` on `pg-ledger` |
 | Kafka topic      | `outbox-events`                                 |

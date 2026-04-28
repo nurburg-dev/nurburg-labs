@@ -1,4 +1,4 @@
-test_name: Order total matches ledger total after 10 orders
+test_name: Despite failures order total should match ledger total
 
 stages:
   - name: Create order 1

@@ -52,7 +52,7 @@ targetName = "pg-orders"
 [[kafka]]
 name = "kafka"
 cpuCores = 0.5
-memoryMB = 512
+memoryMB = 1024
 storageGB = 5
 brokers = 1
 topics = [{ name = "outbox-events", partition = 3, replicationFactor = 1 }]
