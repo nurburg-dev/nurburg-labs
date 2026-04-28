@@ -1,4 +1,4 @@
-test_name: Login API functional tests
+test_name: Valid login for yvette52
 
 stages:
   - name: Valid login for yvette52
@@ -12,7 +12,16 @@ stages:
       status_code: 200
       json:
         token: !anystr
+        user:
+          id: !anyint
+          email: !anystr
+          name: !anystr
 
+---
+
+test_name: Valid login for james37
+
+stages:
   - name: Valid login for james37
     request:
       url: "{tavern.env_vars.HOST}/auth/login"
@@ -24,7 +33,16 @@ stages:
       status_code: 200
       json:
         token: !anystr
+        user:
+          id: !anyint
+          email: !anystr
+          name: !anystr
 
+---
+
+test_name: Wrong password returns 401
+
+stages:
   - name: Wrong password returns 401
     request:
       url: "{tavern.env_vars.HOST}/auth/login"

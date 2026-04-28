@@ -5,5 +5,6 @@
   "workspaceFolder": "/workspaces/autumn-harbor",
   "features": {
     "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
-  }
+  },
+  "forwardPorts": [3000]
 }

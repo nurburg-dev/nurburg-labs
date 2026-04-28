@@ -8,7 +8,7 @@ const HOST = __ENV.HOST || "http://localhost:3006";
 
 export const options = {
   vus: 50,
-  duration: "30s",
+  duration: "5m",
   thresholds: {
     http_req_duration: ["p(95)<500"],
     errors: ["rate<0.1"],
