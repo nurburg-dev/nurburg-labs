@@ -17,7 +17,7 @@ challengeDetails:
 
 ## The Incident
 
-It's Black Friday. Your e-commerce platform is running a 50% off sale. Thousands of users are trying to log in — and every login is taking 10+ seconds. Customers are rage-quitting. Revenue is bleeding. Your phone won't stop buzzing with enquiry from business teams.
+It's Black Friday. Your e-commerce platform is running a 50% off sale. Thousands of users are trying to log in, and every login is taking 10+ seconds. Customers are rage-quitting. Revenue is bleeding. Your phone won't stop buzzing with enquiries from business teams.
 
 You look at the metrics and see this.
 
@@ -101,7 +101,7 @@ Verify your fix worked by running `EXPLAIN ANALYZE` again. The query plan must n
 
 ## Constraints
 
-1. Don't modify anything inside `.nurburgdev/` — that directory is owned by the eval engine.
+1. Don't modify anything inside `.nurburgdev/` - that directory is owned by the eval engine.
 2. The fix must be in `schema.sql`. The eval engine applies this file when loading the 5M user dataset.
 3. Don't alter the existing `users` table schema.
 
@@ -110,13 +110,3 @@ Verify your fix worked by running `EXPLAIN ANALYZE` again. The query plan must n
     The query filters by email. What database feature speeds up column lookups?
     Read up on <a href="https://www.postgresql.org/docs/current/indexes-intro.html">Postgres indexes</a> — specifically the B-tree type, which is the default and handles equality lookups like <code>WHERE email = ?</code>.
 </details>
-
-## Deploy
-
-Commiting the changes to main will trigger the test automatically on production-like environment.
-
-```bash
-git add schema.sql
-git commit -m "your message"
-git push origin main
-```
