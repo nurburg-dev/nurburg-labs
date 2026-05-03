@@ -21,7 +21,7 @@ It's Black Friday. Your e-commerce platform is running a 50% off sale. Thousands
 
 You look at the metrics and see this.
 
-![P95 Latency](https://nurburg.dev/f9a933f4-922d-4f99-927e-c7f57447bc2f/__scratch_pad__/perf/ga1ggv3/P95_DURATION?taskName=traffic)
+![P95 Latency](https://nurburg.dev/c/556bd2f0-a897-4492-b967-425754fa2576%2F__scratch_pad__/perf/eeqpe5u/P95_DURATION?taskName=traffic)
 
 The login API hits the `users` table on `email`. Something about this API is extremely slow.
 
