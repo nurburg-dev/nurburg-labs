@@ -1,0 +1,12 @@
+{
+  "name": "proud-island",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspaces/proud-island",
+  "features": {
+    "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
+  },
+  "forwardPorts": [
+    3000
+  ]
+}

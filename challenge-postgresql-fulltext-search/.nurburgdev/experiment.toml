@@ -1,0 +1,64 @@
+description = "Optimise a ticket search API using PostgreSQL full-text search."
+
+[[service]]
+name = "challenge"
+runtime = "nodejs"
+port = 3000
+healthCheckUrl = "/healthcheck"
+cpuCores = 0.5
+memoryMB = 512
+instances = 1
+env = {DB_HOST = "ticketsdb", DB_PORT = "5432", DB_NAME = "ticketsdb", DB_USER = "user", DB_PASSWORD = "password", PORT = "3000"}
+
+[[postgres]]
+name = "ticketsdb"
+cpuCores = 0.5
+memoryMB = 512
+storageGB = 10
+dbName = "ticketsdb"
+user = "user"
+password = "password"
+
+[[dataseeder]]
+name = "schemaseeder"
+file = "schema.sql"
+targetName = "ticketsdb"
+
+[[dataseeder]]
+name = "dataseeder"
+file = "data.sql"
+targetName = "ticketsdb"
+dependsOn = ["schemaseeder"]
+
+[[traffic]]
+file = ".nurburgdev/traffic.js"
+cpuCores = 0.5
+memoryMB = 256
+env = {HOST = "http://challenge:3000"}
+
+[apitest]
+file = ".nurburgdev/apitest.tavern.yaml"
+env = { HOST = "http://challenge:3000" }
+
+[[score]]
+name = "FUNC_TEST"
+taskName = "apitest"
+threshold = 100.0
+
+[[score]]
+name = "ERR_RATE"
+taskName = "traffic"
+threshold = 5.0
+
+[[score]]
+name = "LATENCY_95"
+taskName = "traffic"
+threshold = 100.0
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "challenge"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "ticketsdb"

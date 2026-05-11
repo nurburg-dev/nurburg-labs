@@ -1,0 +1,25 @@
+{
+  "name": "challenge",
+  "version": "1.0.0",
+  "description": "PostgreSQL Full-Text Search Challenge",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "DB_HOST=ticketsdb DB_PORT=5432 DB_NAME=ticketsdb DB_USER=user DB_PASSWORD=password ts-node src/index.ts",
+    "psql": "PGPASSWORD=password psql -h ticketsdb -U user -d ticketsdb",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.6",
+    "@types/pg": "^8.10.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
