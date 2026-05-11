@@ -1,0 +1,27 @@
+{
+  "name": "challenge",
+  "version": "1.0.0",
+  "description": "PostgreSQL Table Partitioning Challenge",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "DB_HOST=postgresdb DB_PORT=5432 DB_NAME=transactiondb DB_USER=user DB_PASSWORD=password ts-node src/index.ts",
+    "psql": "PGPASSWORD=password psql -h postgresdb -U user -d transactiondb",
+    "db:reset": "PGPASSWORD=password psql -h postgresdb -U user -d transactiondb -c 'DROP TABLE IF EXISTS transaction_logs CASCADE;' && PGPASSWORD=password psql -h postgresdb -U user -d transactiondb -f schema.sql",
+    "db:seed": "wget -O- https://nurburg-dev-fluentbit.s3.eu-central-1.amazonaws.com/0005-transactions.csv | PGPASSWORD=password psql -h postgresdb -U user -d transactiondb -c \"\\COPY transaction_logs FROM STDIN CSV HEADER\"",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.6",
+    "@types/pg": "^8.10.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

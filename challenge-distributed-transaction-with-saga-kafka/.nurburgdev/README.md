@@ -9,9 +9,9 @@ tags: [kafka, postgres, mysql, distributed-systems]
 intent: "challenge"
 draft: true
 challengeDetails:
-  id: 0003
+  id: 0006
   difficulty: "hard"
-  points: 300
+  points: 400
   language: "typescript"
 ---
 
@@ -25,16 +25,16 @@ Digging into the logs, you find that `booking-service` calls the two airline HTT
 
 You have three services, two PostgreSQL databases, one MySQL database, and a Kafka cluster pre-provisioned:
 
-| Service             | Port | Database                  |
-|---------------------|------|---------------------------|
-| `booking-service`   | 3000 | PostgreSQL— `bookingdb`   |
-| `airline-1-service` | 4000 | PostgreSQL— `airline1db`  |
-| `airline-2-service` | 5000 | MySQL— `airline2db`       |
+| Service             | Port | Database                 |
+| ------------------- | ---- | ------------------------ |
+| `booking-service`   | 3000 | PostgreSQL— `bookingdb`  |
+| `airline-1-service` | 4000 | PostgreSQL— `airline1db` |
+| `airline-2-service` | 5000 | MySQL— `airline2db`      |
 
 Kafka is available at `kafka:9092` with three topics you must use:
 
 | Topic             | Consumer            |
-|-------------------|---------------------|
+| ----------------- | ------------------- |
 | `airline-1`       | `airline-1-service` |
 | `airline-2`       | `airline-2-service` |
 | `booking-service` | `booking-service`   |
@@ -209,12 +209,13 @@ Look at `booking-service/src/bookingDBService.ts` — the `orchestrateBookingSag
 <details>
 <summary>How should the Kafka message flow look?</summary>
 
-booking-service  →  airline-1 topic  →  airline-1-service
-booking-service  →  airline-2 topic  →  airline-2-service
-airline-1-service  →  booking-service topic  →  booking-service
-airline-2-service  →  booking-service topic  →  booking-service
+booking-service → airline-1 topic → airline-1-service
+booking-service → airline-2 topic → airline-2-service
+airline-1-service → booking-service topic → booking-service
+airline-2-service → booking-service topic → booking-service
 
 Each message should carry a `bookingId`, a `type` (e.g. `BLOCK`, `CONFIRM`, `CANCEL`), and a `status` on replies (`SUCCESS` or `FAILURE`).
+
 </details>
 
 ## What you're actually learning

@@ -1,0 +1,16 @@
+services:
+    dev:
+        image: mcr.microsoft.com/devcontainers/typescript-node:22
+        command: sleep infinity
+        ports:
+            - 3000:3000
+        volumes:
+            - ../:/workspaces/fancy-nebula
+        depends_on:
+            - postgresdb
+    postgresdb:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: transactiondb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user

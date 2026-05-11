@@ -9,7 +9,7 @@ tags: [temporal, postgres, mysql, distributed-systems]
 intent: "challenge"
 draft: true
 challengeDetails:
-  id: 0004
+  id: 0007
   difficulty: "hard"
   points: 300
   language: "typescript"
@@ -25,16 +25,16 @@ Digging into the logs, you find that `booking-service` calls the two airline HTT
 
 You have three services, two PostgreSQL databases, one MySQL database, and a Temporal server pre-provisioned:
 
-| Service             | Port | Database                  |
-|---------------------|------|---------------------------|
-| `booking-service`   | 3000 | PostgreSQL— `bookingdb`   |
-| `airline-1-service` | 4000 | PostgreSQL— `airline1db`  |
-| `airline-2-service` | 5000 | MySQL— `airline2db`       |
+| Service             | Port | Database                 |
+| ------------------- | ---- | ------------------------ |
+| `booking-service`   | 3000 | PostgreSQL— `bookingdb`  |
+| `airline-1-service` | 4000 | PostgreSQL— `airline1db` |
+| `airline-2-service` | 5000 | MySQL— `airline2db`      |
 
 Temporal is available at `temporal:7233`. The saga runs as a Temporal workflow started by `booking-service`. Airline services run as activity workers on the `booking-saga` task queue:
 
 | Service             | Role                  |
-|---------------------|-----------------------|
+| ------------------- | --------------------- |
 | `booking-service`   | Workflow orchestrator |
 | `airline-1-service` | Activity worker       |
 | `airline-2-service` | Activity worker       |
@@ -206,14 +206,15 @@ Look at `booking-service/src/bookingDBService.ts` — the `orchestrateBookingSag
 <details>
 <summary>How should the Temporal workflow look?</summary>
 
-booking-service starts a workflow  →  Temporal dispatches activities  →  airline-1-service worker executes blockFlightBooking activity
-                                                                      →  airline-2-service worker executes blockFlightBooking activity
+booking-service starts a workflow → Temporal dispatches activities → airline-1-service worker executes blockFlightBooking activity
+→ airline-2-service worker executes blockFlightBooking activity
 
 On failure, the workflow runs compensating activities in reverse:
 
-airline-1-service worker executes cancelFlightBooking activity  ←  Temporal dispatches compensation  ←  workflow catches the error
+airline-1-service worker executes cancelFlightBooking activity ← Temporal dispatches compensation ← workflow catches the error
 
 Each activity should accept `{ bookingId, flightDate, seatCount }` for block, and `{ bookingId }` for confirm and cancel.
+
 </details>
 
 ## What you're actually learning
