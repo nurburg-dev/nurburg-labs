@@ -1,0 +1,57 @@
+description = "Fix offset-based cursor pagination to true keyset pagination in a Python FastAPI product catalog service."
+
+[[service]]
+name = "challenge"
+runtime = "python"
+port = 8000
+healthCheckUrl = "/healthcheck"
+cpuCores = 0.5
+memoryMB = 512
+instances = 1
+env = {DB_HOST = "productsdb", DB_PORT = "5432", DB_NAME = "productsdb", DB_USER = "user", DB_PASSWORD = "password", PORT = "8000"}
+
+[[postgres]]
+name = "productsdb"
+cpuCores = 0.5
+memoryMB = 512
+storageGB = 10
+dbName = "productsdb"
+user = "user"
+password = "password"
+
+[[dataseeder]]
+file = ".nurburgdev/schema.sql"
+targetName = "productsdb"
+
+[[traffic]]
+file = ".nurburgdev/traffic.js"
+cpuCores = 0.5
+memoryMB = 256
+env = {HOST = "http://challenge:8000"}
+
+[apitest]
+file = ".nurburgdev/apitest.tavern.yaml"
+env = {HOST = "http://challenge:8000"}
+
+[[score]]
+name = "FUNC_TEST"
+taskName = "apitest"
+threshold = 100.0
+
+[[score]]
+name = "ERR_RATE"
+taskName = "traffic"
+threshold = 5.0
+
+[[score]]
+name = "LATENCY_95"
+taskName = "traffic"
+threshold = 200.0
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "challenge"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "productsdb"
