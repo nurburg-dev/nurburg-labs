@@ -5,7 +5,7 @@ services:
         ports:
             - 8000:8000
         volumes:
-            - ../:/workspaces/swift-cascade
+            - ../:/workspaces/product-pagination-performance
         depends_on:
             - productsdb
         environment:

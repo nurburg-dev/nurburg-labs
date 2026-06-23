@@ -1,8 +1,8 @@
 {
-  "name": "swift-cascade",
+  "name": "product-pagination-performance",
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev",
-  "workspaceFolder": "/workspaces/swift-cascade",
+  "workspaceFolder": "/workspaces/product-pagination-performance",
   "features": {
     "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
   },

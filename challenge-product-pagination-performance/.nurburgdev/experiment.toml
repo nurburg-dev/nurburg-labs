@@ -1,4 +1,4 @@
-description = "Fix offset-based cursor pagination to true keyset pagination in a Python FastAPI product catalog service."
+description = "Speed up deep pagination in a Python FastAPI product catalog service backed by PostgreSQL."
 
 [[service]]
 name = "challenge"

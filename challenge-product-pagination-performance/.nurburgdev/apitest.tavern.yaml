@@ -1,0 +1,59 @@
+test_name: Product Pagination API Tests
+
+stages:
+  - name: Healthcheck returns 200
+    request:
+      url: "{tavern.env_vars.HOST}/healthcheck"
+      method: GET
+    response:
+      status_code: 200
+
+  - name: First page returns products in descending order
+    request:
+      url: "{tavern.env_vars.HOST}/products?limit=3"
+      method: GET
+    response:
+      status_code: 200
+      strict: false
+      json:
+        products:
+          - id: 500000
+          - id: 499999
+          - id: 499998
+        next_page_token: !anystr
+        limit: 3
+      save:
+        json:
+          next_page_token: next_page_token
+
+  - name: Second page continues without duplicates
+    request:
+      url: "{tavern.env_vars.HOST}/products?page_token={next_page_token}&limit=3"
+      method: GET
+    response:
+      status_code: 200
+      strict: false
+      json:
+        products:
+          - id: 499997
+          - id: 499996
+          - id: 499995
+        next_page_token: !anystr
+        limit: 3
+
+  - name: Limit parameter is respected
+    request:
+      url: "{tavern.env_vars.HOST}/products?limit=5"
+      method: GET
+    response:
+      status_code: 200
+      strict: false
+      json:
+        products:
+          - id: 500000
+          - id: 499999
+          - id: 499998
+          - id: 499997
+          - id: 499996
+        next_page_token: !anystr
+        limit: 5

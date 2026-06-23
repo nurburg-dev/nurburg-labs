@@ -23,14 +23,13 @@ def healthcheck():
 
 @app.get("/products")
 def get_products(
-    cursor: Optional[str] = Query(None, description="Pagination cursor"),
+    page_token: Optional[str] = Query(None, description="Token for the next page"),
     limit: int = Query(20, ge=1, le=100),
 ):
-    # BUG: cursor is decoded as a page number and translated to OFFSET.
-    # PostgreSQL must scan and discard (page-1)*limit rows on every request.
-    # Deep pages require scanning hundreds of thousands of rows, making
-    # response time grow linearly with depth.
-    page = int(cursor) if cursor else 1
+    # Simple pagination token: the token stores the next page number.
+    # This is easy to understand and works well for shallow browsing, but it
+    # becomes expensive when clients request pages deep in the catalog.
+    page = int(page_token) if page_token else 1
     offset = (page - 1) * limit
 
     conn = get_db()
@@ -58,7 +57,7 @@ def get_products(
             }
             for r in rows
         ]
-        next_cursor = str(page + 1) if rows else None
-        return {"products": products, "next_cursor": next_cursor, "limit": limit}
+        next_page_token = str(page + 1) if rows else None
+        return {"products": products, "next_page_token": next_page_token, "limit": limit}
     finally:
         conn.close()
