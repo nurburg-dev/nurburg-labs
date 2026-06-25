@@ -61,10 +61,6 @@ The API also includes a category filter:
 
 You may change the internal meaning of `page_token`. Treat it as an opaque string: clients only pass back the `next_page_token` returned by the previous response.
 
-## Hint
-
-Early pages may look fine, but later pages do more and more database work. Think about whether your pagination strategy makes the database skip rows or seek directly to the next slice.
-
 ## Evaluation
 
 | Score | Threshold | Checks |
@@ -73,5 +69,14 @@ Early pages may look fine, but later pages do more and more database work. Think
 | `LATENCY_95` | < 350ms | Pagination latency under mixed shallow, medium-depth, and deep browsing against a hot category |
 
 The stock implementation should still look fine on early pages. A scalable fix should keep tail latency stable even when some clients walk much deeper into the feed.
+
+## Hint
+
+<details>
+<summary>Show hint</summary>
+
+Early pages may look fine, but later pages do more and more database work. Think about whether your pagination strategy makes the database skip rows or seek directly to the next slice.
+
+</details>
 
 [![Try Challenge](https://nurburg.dev/cta/challenge/python/view)](https://nurburg.dev/nurburg-labs:challenge-product-pagination-performance)
