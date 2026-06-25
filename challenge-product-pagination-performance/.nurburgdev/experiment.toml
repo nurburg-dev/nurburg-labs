@@ -39,14 +39,9 @@ taskName = "apitest"
 threshold = 100.0
 
 [[score]]
-name = "ERR_RATE"
-taskName = "traffic"
-threshold = 5.0
-
-[[score]]
 name = "LATENCY_95"
 taskName = "traffic"
-threshold = 200.0
+threshold = 350.0
 
 [[telemetry]]
 name = ["POD_CPU", "POD_MEMORY"]

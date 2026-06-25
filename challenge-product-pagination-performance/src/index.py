@@ -1,19 +1,22 @@
 from fastapi import FastAPI, Query
 from typing import Optional
-import psycopg2
+from psycopg_pool import ConnectionPool
 import os
 
 app = FastAPI()
 
 
-def get_db():
-    return psycopg2.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        port=int(os.environ.get("DB_PORT", 5432)),
-        dbname=os.environ.get("DB_NAME", "productsdb"),
-        user=os.environ.get("DB_USER", "user"),
-        password=os.environ.get("DB_PASSWORD", "password"),
-    )
+pool = ConnectionPool(
+    conninfo=(
+        f"host={os.environ.get('DB_HOST', 'localhost')} "
+        f"port={int(os.environ.get('DB_PORT', 5432))} "
+        f"dbname={os.environ.get('DB_NAME', 'productsdb')} "
+        f"user={os.environ.get('DB_USER', 'user')} "
+        f"password={os.environ.get('DB_PASSWORD', 'password')}"
+    ),
+    min_size=1,
+    max_size=20,
+)
 
 
 @app.get("/healthcheck")
@@ -25,39 +28,40 @@ def healthcheck():
 def get_products(
     page_token: Optional[str] = Query(None, description="Token for the next page"),
     limit: int = Query(20, ge=1, le=100),
+    category_id: int = Query(1, ge=1, le=20),
 ):
-    # Simple pagination token: the token stores the next page number.
-    # This is easy to understand and works well for shallow browsing, but it
-    # becomes expensive when clients request pages deep in the catalog.
     page = int(page_token) if page_token else 1
     offset = (page - 1) * limit
 
-    conn = get_db()
-    try:
+    with pool.connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT id, name, category, price, stock, created_at
+                SELECT id, name, category_id, brand, price_cents, inventory_count, is_active, created_at, updated_at
                 FROM products
+                WHERE category_id = %s
+                  AND is_active = TRUE
                 ORDER BY id DESC
                 LIMIT %s OFFSET %s
                 """,
-                (limit, offset),
+                (category_id, limit, offset),
             )
             rows = cur.fetchall()
 
-        products = [
-            {
-                "id": r[0],
-                "name": r[1],
-                "category": r[2],
-                "price": float(r[3]),
-                "stock": r[4],
-                "created_at": r[5].isoformat(),
-            }
-            for r in rows
-        ]
-        next_page_token = str(page + 1) if rows else None
-        return {"products": products, "next_page_token": next_page_token, "limit": limit}
-    finally:
-        conn.close()
+    products = [
+        {
+            "id": r[0],
+            "name": r[1],
+            "category_id": r[2],
+            "brand": r[3],
+            "price_cents": r[4],
+            "inventory_count": r[5],
+            "is_active": r[6],
+            "created_at": r[7].isoformat(),
+            "updated_at": r[8].isoformat(),
+        }
+        for r in rows
+    ]
+    next_page_token = str(page + 1) if rows else None
+
+    return {"products": products, "next_page_token": next_page_token, "limit": limit}

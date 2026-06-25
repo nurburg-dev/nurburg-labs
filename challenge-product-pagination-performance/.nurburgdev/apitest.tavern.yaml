@@ -8,52 +8,64 @@ stages:
     response:
       status_code: 200
 
-  - name: First page returns products in descending order
+  - name: First page returns active products from the hot category in descending order
     request:
-      url: "{tavern.env_vars.HOST}/products?limit=3"
+      url: "{tavern.env_vars.HOST}/products?category_id=1&limit=3"
       method: GET
     response:
       status_code: 200
       strict: false
       json:
         products:
-          - id: 500000
-          - id: 499999
-          - id: 499998
+          - id: 2000000
+            category_id: 1
+            is_active: true
+          - id: 1999939
+            category_id: 1
+            is_active: true
+          - id: 1999938
+            category_id: 1
+            is_active: true
         next_page_token: !anystr
         limit: 3
       save:
         json:
           next_page_token: next_page_token
 
-  - name: Second page continues without duplicates
+  - name: Second page continues without duplicates in the same category
     request:
-      url: "{tavern.env_vars.HOST}/products?page_token={next_page_token}&limit=3"
+      url: "{tavern.env_vars.HOST}/products?category_id=1&page_token={next_page_token}&limit=3"
       method: GET
     response:
       status_code: 200
       strict: false
       json:
         products:
-          - id: 499997
-          - id: 499996
-          - id: 499995
+          - id: 1999937
+            category_id: 1
+            is_active: true
+          - id: 1999936
+            category_id: 1
+            is_active: true
+          - id: 1999935
+            category_id: 1
+            is_active: true
         next_page_token: !anystr
         limit: 3
 
-  - name: Limit parameter is respected
+  - name: Limit parameter is respected for the hot category feed
     request:
-      url: "{tavern.env_vars.HOST}/products?limit=5"
+      url: "{tavern.env_vars.HOST}/products?category_id=1&limit=5"
       method: GET
     response:
       status_code: 200
       strict: false
       json:
         products:
-          - id: 500000
-          - id: 499999
-          - id: 499998
-          - id: 499997
-          - id: 499996
+          - id: 2000000
+          - id: 1999939
+          - id: 1999938
+          - id: 1999937
+          - id: 1999936
         next_page_token: !anystr
         limit: 5

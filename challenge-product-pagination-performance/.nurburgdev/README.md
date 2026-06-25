@@ -3,11 +3,11 @@ title: "Speed Up Deep Product Catalog Pagination"
 author: "nurburg-dev"
 authorLink: "https://github.com/nurburg-dev"
 authorTitle: "Software Engineer"
-summary: "A product catalog API is fast on early pages but slows to seconds when users browse deep into the results. Redesign pagination so deep pages stay fast."
+summary: "A large catalog feed works for shallow browsing but slows down as clients page deeper into a hot category. Redesign pagination so latency stays predictable."
 publishedOn: 2026-06-20
 tags: [postgres, scalability, debugging]
 intent: "challenge"
-draft: true
+draft: false
 challengeDetails:
   id: 8
   difficulty: "medium"
@@ -17,9 +17,11 @@ challengeDetails:
 
 ## The Situation
 
-Your team runs a fashion marketplace catalog with 500,000 products. The frontend uses a "Load More" button. Early pages are fast, but users who scroll deep into the catalog wait several seconds per page and database CPU spikes.
+Your team runs a marketplace catalog with 2,000,000 products. The catalog includes a hot-category skew, repeated brands, uneven price bands, inventory variance, active/inactive products, and time-based records so the pagination problem behaves like a realistic feed.
 
-The implementation in `src/index.py` is simple and correct for small result sets. Make it scale for deep catalog browsing.
+The API serves a category feed that clients browse with a "Load More" interaction. Early pages are usually fine, but deeper requests against the hot category get progressively slower. The challenge is to keep pagination latency stable even as clients keep walking deeper into the feed.
+
+The load test exercises a mix of shallow, medium-depth, and deep browsing against the hot category feed. The starter implementation in `src/index.py` is functionally correct for small result sets, but it degrades badly at depth. Make it scale for deep browsing.
 
 ## Run It
 
@@ -45,7 +47,7 @@ Code to fix: `src/index.py`, function `get_products`
 
 ## The Task
 
-Redesign `GET /products` so later pages remain fast as users browse through the catalog.
+Redesign `GET /products` so later pages remain fast for the hot category feed as clients browse through the catalog.
 
 Keep the API shape:
 
@@ -53,16 +55,23 @@ Keep the API shape:
 - `limit` query parameter between 1 and 100
 - response with `products`, `next_page_token`, and `limit`
 
-You may change the internal meaning of `page_token`. Treat it as a simple opaque string: clients only pass back the `next_page_token` returned by the previous response.
+The API also includes a category filter:
+
+- `category_id` query parameter selects a category feed
+
+You may change the internal meaning of `page_token`. Treat it as an opaque string: clients only pass back the `next_page_token` returned by the previous response.
+
+## Hint
+
+Early pages may look fine, but later pages do more and more database work. Think about whether your pagination strategy makes the database skip rows or seek directly to the next slice.
 
 ## Evaluation
 
 | Score | Threshold | Checks |
 |---|---:|---|
-| `FUNC_TEST` | ≥ 100% | API contract and non-empty results |
-| `ERR_RATE` | < 5% | No crashes or 5xx errors under load |
-| `LATENCY_95` | < 200ms | Pagination latency under load |
+| `FUNC_TEST` | ≥ 100% | API contract and stable category pagination |
+| `LATENCY_95` | < 350ms | Pagination latency under mixed shallow, medium-depth, and deep browsing against a hot category |
 
-The stock implementation can take seconds for deep browsing. A scalable fix should stay well under the latency threshold.
+The stock implementation should still look fine on early pages. A scalable fix should keep tail latency stable even when some clients walk much deeper into the feed.
 
 [![Try Challenge](https://nurburg.dev/cta/challenge/python/view)](https://nurburg.dev/nurburg-labs:challenge-product-pagination-performance)
