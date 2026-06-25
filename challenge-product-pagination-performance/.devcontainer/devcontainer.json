@@ -1,0 +1,10 @@
+{
+  "name": "product-pagination-performance",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspaces/product-pagination-performance",
+  "features": {
+    "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
+  },
+  "forwardPorts": [8000]
+}
