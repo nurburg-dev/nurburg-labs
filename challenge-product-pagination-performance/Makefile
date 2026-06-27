@@ -1,4 +1,4 @@
-DB_HOST     ?= localhost
+DB_HOST     ?= productsdb
 DB_PORT     ?= 5432
 DB_NAME     ?= productsdb
 DB_USER     ?= user
@@ -9,6 +9,7 @@ install:
 	pip install -r requirements.txt
 
 run:
+	DB_HOST=$(DB_HOST) DB_PORT=$(DB_PORT) DB_NAME=$(DB_NAME) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) PORT=$(PORT) \
 	uvicorn src.index:app --host 0.0.0.0 --port $(PORT) --reload
 
 db:
