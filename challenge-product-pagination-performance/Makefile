@@ -8,6 +8,9 @@ PORT        ?= 8000
 install:
 	pip install -r requirements.txt
 
+setup-db:
+	PGPASSWORD=$(DB_PASSWORD) psql -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER) -d $(DB_NAME) -f .nurburgdev/schema.sql
+
 run:
 	DB_HOST=$(DB_HOST) DB_PORT=$(DB_PORT) DB_NAME=$(DB_NAME) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) PORT=$(PORT) \
 	uvicorn src.index:app --host 0.0.0.0 --port $(PORT) --reload

@@ -29,7 +29,7 @@ Open the repo in the devcontainer, then run:
 
 ```bash
 make install
-PGPASSWORD=password psql -h productsdb -U user -d productsdb -f .nurburgdev/schema.sql
+make setup-db
 make run
 ```
 
