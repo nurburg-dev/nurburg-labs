@@ -25,8 +25,11 @@ The load test exercises a mix of shallow, medium-depth, and deep browsing agains
 
 ## Run It
 
+Open the repo in the devcontainer, then run:
+
 ```bash
 make install
+PGPASSWORD=password psql -h productsdb -U user -d productsdb -f .nurburgdev/schema.sql
 make run
 ```
 
