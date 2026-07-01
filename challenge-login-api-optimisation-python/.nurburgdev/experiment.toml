@@ -1,0 +1,62 @@
+description = "Optimise a login API to handle high-throughput authentication under Black Friday traffic."
+
+[[service]]
+name = "challenge"
+runtime = "python"
+port = 8000
+healthCheckUrl = "/healthcheck"
+cpuCores = 0.5
+memoryMB = 512
+instances = 1
+env = {DB_HOST = "userdb", DB_PORT = "5432", DB_NAME = "userdb", DB_USER = "user", DB_PASSWORD = "password", PORT = "8000"}
+
+[[postgres]]
+name = "userdb"
+cpuCores = 0.5
+memoryMB = 512
+storageGB = 10
+dbName = "userdb"
+user = "user"
+password = "password"
+
+[[dataseeder]]
+file = "schema.sql"
+targetName = "userdb"
+
+[[dataseeder]]
+url = "https://nurburg-dev-fluentbit.s3.eu-central-1.amazonaws.com/0000-users.csv"
+targetName = "userdb"
+targetTable = "users"
+
+[[traffic]]
+file = ".nurburgdev/traffic.js"
+cpuCores = 0.5
+memoryMB = 256
+env = {HOST = "http://challenge:8000"}
+
+[apitest]
+file = ".nurburgdev/apitest.tavern.yaml"
+env = {HOST = "http://challenge:8000"}
+
+[[score]]
+name = "FUNC_TEST"
+taskName = "apitest"
+threshold = 100.0
+
+[[score]]
+name = "ERR_RATE"
+taskName = "traffic"
+threshold = 5.0
+
+[[score]]
+name = "LATENCY_95"
+taskName = "traffic"
+threshold = 100.0
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY"]
+componentName = "challenge"
+
+[[telemetry]]
+name = ["POD_CPU", "POD_MEMORY", "QUERY_RATE", "ACTIVE_CONNECTIONS"]
+componentName = "userdb"

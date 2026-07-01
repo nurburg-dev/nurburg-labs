@@ -1,0 +1,2 @@
+build: sh mvnw package -DskipTests
+web: java -jar target/challenge-0.0.1-SNAPSHOT.jar

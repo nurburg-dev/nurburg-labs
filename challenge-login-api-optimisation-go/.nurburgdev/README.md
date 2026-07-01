@@ -12,7 +12,7 @@ challengeDetails:
   id: 0000
   difficulty: "easy"
   points: 100
-  language: "typescript"
+  language: "go"
 ---
 
 ## The Incident
@@ -43,7 +43,7 @@ wget -O- https://nurburg-dev-fluentbit.s3.eu-central-1.amazonaws.com/0000-users-
 ### Start service
 
 ```bash
-npm install && npm run dev
+make run
 ```
 
 ## See It Break
@@ -94,10 +94,15 @@ On the local 55-row dataset you'll see output like this:
 
 The login query filters users by `email`. Without an index, Postgres does a full table scan on every login request — every row, every time.
 
-Your task is to fix this. Add the right database index to `schema.sql`, then apply it to your local database. First connect to DB using the following command. Then run the SQL command to create index.
+Your task is to fix this. Add the right database index to `schema.sql`, then apply it to your local database:
 
 ```bash
-PGPASSWORD=password psql -h userdb -U user -d userdb -c
+PGPASSWORD=password psql -h userdb -U user -d userdb
+```
+
+```sql
+-- run inside psql
+CREATE INDEX ...;
 ```
 
 Verify your fix worked by running `EXPLAIN ANALYZE` again. The query plan must no longer show `Seq Scan on users` — you should see `Index Scan` instead.

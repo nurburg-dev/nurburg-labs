@@ -1,0 +1,23 @@
+services:
+  dev:
+    image: mcr.microsoft.com/devcontainers/java:21
+    command: sleep infinity
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../:/workspaces/login-api-optimisation-java
+    depends_on:
+      - userdb
+    environment:
+      DB_HOST: userdb
+      DB_PORT: "5432"
+      DB_NAME: userdb
+      DB_USER: user
+      DB_PASSWORD: password
+      PORT: "8080"
+  userdb:
+    image: postgres:17.9
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user

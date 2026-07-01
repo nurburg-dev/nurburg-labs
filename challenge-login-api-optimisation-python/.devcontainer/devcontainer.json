@@ -1,11 +1,11 @@
 {
-  "name": "autumn-harbor",
+  "name": "login-api-optimisation-python",
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev",
-  "workspaceFolder": "/workspaces/autumn-harbor",
+  "workspaceFolder": "/workspaces/login-api-optimisation-python",
   "remoteUser": "root",
   "features": {
     "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
   },
-  "forwardPorts": [3000]
+  "forwardPorts": [8000]
 }

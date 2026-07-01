@@ -1,8 +1,8 @@
 {
-  "name": "autumn-harbor",
+  "name": "login-api-optimisation-go",
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev",
-  "workspaceFolder": "/workspaces/autumn-harbor",
+  "workspaceFolder": "/workspaces/login-api-optimisation-go",
   "remoteUser": "root",
   "features": {
     "ghcr.io/rails/devcontainer/features/postgres-client:1": {}

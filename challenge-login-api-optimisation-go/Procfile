@@ -1,0 +1,2 @@
+build: go mod tidy && go build -o bin/challenge .
+web: ./bin/challenge

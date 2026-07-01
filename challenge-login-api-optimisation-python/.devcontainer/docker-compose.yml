@@ -1,0 +1,23 @@
+services:
+  dev:
+    image: mcr.microsoft.com/devcontainers/python:3.12
+    command: sleep infinity
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/workspaces/login-api-optimisation-python
+    depends_on:
+      - userdb
+    environment:
+      DB_HOST: userdb
+      DB_PORT: "5432"
+      DB_NAME: userdb
+      DB_USER: user
+      DB_PASSWORD: password
+      PORT: "8000"
+  userdb:
+    image: postgres:17.9
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user

@@ -7,25 +7,26 @@ authorLink: "https://github.com/anunaybiswas"
 authorTitle: "Software Engineer"
 intent: "challenge"
 draft: false
-publishedOn: 2026-04-07
+publishedOn: 2026-07-01
 challengeDetails:
-  id: 0000
   difficulty: "easy"
   points: 100
-  language: "typescript"
+  language: "python"
 ---
 
 ## The Incident
 
 It's Black Friday. Your e-commerce platform is running a 50% off sale. Thousands of users are trying to log in, and every login is taking 10+ seconds. Customers are rage-quitting. Revenue is bleeding. Your phone won't stop buzzing with enquiries from business teams.
 
-You look at the metrics and see this.
-
-![P95 Latency](https://nurburg.dev/c/556bd2f0-a897-4492-b967-425754fa2576%2F__scratch_pad__/perf/eeqpe5u/P95_DURATION?taskName=traffic)
-
 The login API hits the `users` table on `email`. Something about this API is extremely slow.
 
 ## Setup
+
+### Install dependencies
+
+```bash
+make install
+```
 
 ### Load schema
 
@@ -43,18 +44,18 @@ wget -O- https://nurburg-dev-fluentbit.s3.eu-central-1.amazonaws.com/0000-users-
 ### Start service
 
 ```bash
-npm install && npm run dev
+make run
 ```
 
 ## See It Break
 
 ```bash
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost:8000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "flopez@example.net_0", "password": "password123"}'
+  -d '{"email": "yvette52@example.org", "password": "password123"}'
 ```
 
-The local dataset is only ~50 rows — too small to feel slow. Locally the login will complete in milliseconds regardless of the bug. The performance collapse only shows up at 5M users (production scale).
+The local dataset is only ~55 rows — too small to feel slow. Locally the login will complete in milliseconds regardless of the bug. The performance collapse only shows up at 5M users (production scale).
 
 ### Diagnose with a query plan
 
@@ -66,7 +67,7 @@ PGPASSWORD=password psql -h userdb -U user -d userdb
 
 ```sql
 EXPLAIN ANALYZE
-SELECT id, password_hash FROM users WHERE email = 'flopez@example.net_0';
+SELECT id, password_hash FROM users WHERE email = 'yvette52@example.org';
 ```
 
 On the local 55-row dataset you'll see output like this:
@@ -75,7 +76,7 @@ On the local 55-row dataset you'll see output like this:
                                          QUERY PLAN
 --------------------------------------------------------------------------------------------
  Seq Scan on users  (cost=0.00..1.69 rows=1 width=65) (actual time=0.048..0.052 rows=1 loops=1)
-   Filter: ((email)::text = 'flopez@example.net_0'::text)
+   Filter: ((email)::text = 'yvette52@example.org'::text)
    Rows Removed by Filter: 54
  Planning Time: 0.196 ms
  Execution Time: 0.081 ms
@@ -94,10 +95,14 @@ On the local 55-row dataset you'll see output like this:
 
 The login query filters users by `email`. Without an index, Postgres does a full table scan on every login request — every row, every time.
 
-Your task is to fix this. Add the right database index to `schema.sql`, then apply it to your local database. First connect to DB using the following command. Then run the SQL command to create index.
+Your task is to fix this. Add the right database index to `schema.sql`, then apply it to your local database:
 
 ```bash
-PGPASSWORD=password psql -h userdb -U user -d userdb -c
+PGPASSWORD=password psql -h userdb -U user -d userdb
+```
+
+```sql
+<your index here>
 ```
 
 Verify your fix worked by running `EXPLAIN ANALYZE` again. The query plan must no longer show `Seq Scan on users` — you should see `Index Scan` instead.
