@@ -4,8 +4,6 @@
   "service": "dev",
   "workspaceFolder": "/workspaces/login-api-optimisation-go",
   "remoteUser": "root",
-  "features": {
-    "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
-  },
+  "postCreateCommand": "apt-get update && apt-get install -y postgresql-client",
   "forwardPorts": [3000]
 }
