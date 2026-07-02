@@ -3,7 +3,6 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev",
   "workspaceFolder": "/workspaces/login-api-optimisation-java",
-  "remoteUser": "root",
   "features": {
     "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
   },

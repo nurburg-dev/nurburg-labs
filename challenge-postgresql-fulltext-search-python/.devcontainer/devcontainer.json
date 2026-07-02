@@ -1,0 +1,20 @@
+{
+  "name": "quiet-knoll",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspaces/quiet-knoll",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/uv:1": {},
+    "ghcr.io/rails/devcontainer/features/postgres-client:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python"
+      ]
+    }
+  },
+  "forwardPorts": [
+    8000
+  ]
+}

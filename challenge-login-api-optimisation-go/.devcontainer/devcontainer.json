@@ -3,7 +3,6 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev",
   "workspaceFolder": "/workspaces/login-api-optimisation-go",
-  "remoteUser": "root",
   "postCreateCommand": "apt-get update && apt-get install -y postgresql-client",
   "forwardPorts": [3000]
 }

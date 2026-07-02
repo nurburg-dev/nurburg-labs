@@ -1,0 +1,16 @@
+services:
+    dev:
+        image: mcr.microsoft.com/devcontainers/python:3.13
+        command: sleep infinity
+        ports:
+            - 8000:8000
+        volumes:
+            - ../:/workspaces/quiet-knoll
+        depends_on:
+            - ticketsdb
+    ticketsdb:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: ticketsdb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user

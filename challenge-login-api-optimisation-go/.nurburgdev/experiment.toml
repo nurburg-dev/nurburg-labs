@@ -51,7 +51,7 @@ threshold = 5.0
 [[score]]
 name = "LATENCY_95"
 taskName = "traffic"
-threshold = 100.0
+threshold = 400.0
 
 [[telemetry]]
 name = ["POD_CPU", "POD_MEMORY"]

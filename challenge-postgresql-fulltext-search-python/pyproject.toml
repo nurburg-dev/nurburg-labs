@@ -1,0 +1,11 @@
+[project]
+name = "postgresql-fulltext-search-python"
+version = "0.1.0"
+description = "PostgreSQL Full-Text Search Challenge"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "asyncpg>=0.30.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.6",
+]

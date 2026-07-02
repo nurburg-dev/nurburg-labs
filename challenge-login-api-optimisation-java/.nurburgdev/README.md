@@ -9,6 +9,7 @@ intent: "challenge"
 draft: false
 publishedOn: 2026-07-01
 challengeDetails:
+  id: 0000
   difficulty: "easy"
   points: 100
   language: "java"

@@ -1,0 +1,99 @@
+test_name: Basic search returns results
+
+stages:
+  - name: Searching "payment" returns matching tickets
+    request:
+      url: "{tavern.env_vars.HOST}/tickets/search?q=payment"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        data: !anylist
+        meta:
+          total: !anyint
+          page: !anyint
+          limit: !anyint
+
+---
+
+test_name: Status filter narrows results
+
+stages:
+  - name: Filtering by status=open
+    request:
+      url: "{tavern.env_vars.HOST}/tickets/search?q=timeout&status=open"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        data: !anylist
+        meta:
+          total: !anyint
+          page: !anyint
+          limit: !anyint
+
+---
+
+test_name: Missing query returns 400
+
+stages:
+  - name: Missing query param
+    request:
+      url: "{tavern.env_vars.HOST}/tickets/search"
+      method: GET
+    response:
+      status_code: 400
+
+---
+
+test_name: Inflected word matches base form
+
+stages:
+  - name: Searching "crashes" should match tickets with "crashing"
+    request:
+      url: "{tavern.env_vars.HOST}/tickets/search?q=crashes"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        data: !anylist
+        meta:
+          total: 2
+          page: !anyint
+          limit: !anyint
+
+---
+
+test_name: Tag-only term returns results
+
+stages:
+  - name: Searching "429" which appears only in tags on ticket 8
+    request:
+      url: "{tavern.env_vars.HOST}/tickets/search?q=429"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        data: !anylist
+        meta:
+          total: 1
+          page: !anyint
+          limit: !anyint
+
+---
+
+test_name: Shared tag value matches multiple tickets
+
+stages:
+  - name: Searching "devops" which appears only in tags on tickets 7 and 9
+    request:
+      url: "{tavern.env_vars.HOST}/tickets/search?q=devops"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        data: !anylist
+        meta:
+          total: 2
+          page: !anyint
+          limit: !anyint
