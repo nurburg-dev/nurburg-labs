@@ -56,6 +56,10 @@ CREATE INDEX idx_tickets_search_vector ON tickets USING GIN (search_vector);
 
 A GIN index flips the usual storage direction: instead of mapping row → contents like a B-tree does for a column value, it maps each lexeme (word) in `search_vector` to the list of rows that contain it. That's what makes `search_vector @@ websearch_to_tsquery(...)` fast at scale — Postgres looks the query word up directly in the index and gets matching row pointers back, instead of scanning every row's text.
 
+Concretely, GIN stores two layers: an ordered B-tree-like structure over the distinct _keys_ (here, the distinct lexemes across every row's `search_vector`), and for each key a **posting list** — the set of row pointers where that lexeme appears. `@@` decomposes the query into lexemes, looks each one up in the key tree (`O(log n)` in the number of distinct lexemes, not rows), and intersects/unions the resulting posting lists according to the query's `AND`/`OR` structure. This is why GIN scales so much better than `ILIKE '%query%'`, which has no index to consult and must scan and pattern-match every row's raw text.
+
+The tradeoff is write cost: a GIN entry touches one posting list per distinct lexeme in the row, so inserting a row with many unique words means many small index updates, and updating a row means removing and re-adding entries across potentially many lists. Postgres mitigates this with a `GIN pending list` that buffers new entries and merges them into the main structure in batches — fine for this challenge's write volume, but worth knowing about for high-throughput ingestion. Read-heavy workloads like ticket search, where writes are relatively rare and lookups need to be fast, are exactly what GIN is built for. (Postgres also offers **GiST** indexes for full-text search — faster to update, but lossy and slower to query — a tradeoff that doesn't fit this use case.)
+
 A **trigger** keeps `search_vector` populated on every insert/update, using Postgres's built-in `tsvector_update_trigger`:
 
 ```sql
@@ -118,6 +122,32 @@ Searching `crashes` returns no results even when tickets contain `crashing` or `
 When multiple tickets match, the ordering makes no sense. A ticket where the search term appears once deep in the body can rank above a ticket with the term in the title.
 
 > **Hint:** the current query doesn't rank by relevance at all — it orders by `updated_at`. Even a relevance-based `ORDER BY ts_rank(...)` won't help here, because every token in `search_vector` carries equal weight by default. Use [`setweight`](https://www.postgresql.org/docs/current/textsearch-controls.html#TEXTSEARCH-RANKING) to mark title tokens `'A'`, tag tokens `'B'`, and let body tokens fall back to the default `'D'` before combining them into `search_vector`.
+
+#### Ranking in PostgreSQL
+
+Postgres doesn't rank matches for you automatically — `search_vector @@ query` only tells you whether a row matches, not how well. Ranking is a separate, explicit step built from two pieces:
+
+**1. `ts_rank` / `ts_rank_cd`** score a `tsvector` against a `tsquery`:
+
+```sql
+SELECT id, ts_rank(search_vector, websearch_to_tsquery('pg_catalog.simple', 'crashes')) AS rank
+FROM tickets
+ORDER BY rank DESC;
+```
+
+`ts_rank` weighs matches by lexeme frequency; `ts_rank_cd` ("cover density") also factors in how close matching terms are to each other in the text. Either works here — the missing ingredient isn't the ranking function, it's that every lexeme in `search_vector` currently looks equally important.
+
+**2. `setweight`** labels the lexemes coming from each source column with a weight class — `'A'` (highest) through `'D'` (lowest, the default) — before they're merged:
+
+```sql
+setweight(to_tsvector('pg_catalog.simple', title), 'A') ||
+setweight(to_tsvector('pg_catalog.simple', array_to_string(tags, ' ')), 'B') ||
+setweight(to_tsvector('pg_catalog.simple', body), 'D')
+```
+
+`ts_rank` then uses those labels to weight its score — by default `{D, C, B, A}` contribute `{0.1, 0.2, 0.4, 1.0}` respectively — so a title hit outranks a body hit even if the body mentions the term more often.
+
+`tsvector_update_trigger` can't express this — it only concatenates the columns you give it with equal weight. To get weighted ranking, the trigger function needs to build `search_vector` itself with the `setweight(...) || setweight(...) || ...` expression above (e.g. via a custom `PL/pgSQL` trigger function or a generated column), rather than delegating to the built-in trigger.
 
 ## Your Tasks
 
