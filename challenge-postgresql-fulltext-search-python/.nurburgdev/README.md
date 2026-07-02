@@ -9,6 +9,7 @@ intent: "challenge"
 draft: false
 publishedOn: 2026-07-02
 challengeDetails:
+  id: 0003
   difficulty: "hard"
   points: 400
   language: "python"
