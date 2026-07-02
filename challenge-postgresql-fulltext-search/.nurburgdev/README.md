@@ -38,7 +38,7 @@ npm install && npm run dev
 
 ### Reset the database
 
-After changing `schema.sql`, drop and reload to pick up generated column changes:
+After changing `schema.sql`, drop and reload to pick up column/trigger changes:
 
 ```bash
 npm run psql -- -c "DROP TABLE IF EXISTS tickets CASCADE;"
@@ -141,7 +141,39 @@ setweight(to_tsvector('pg_catalog.simple', body), 'D')
 
 `ts_rank` then uses those labels to weight its score — by default `{D, C, B, A}` contribute `{0.1, 0.2, 0.4, 1.0}` respectively — so a title hit outranks a body hit even if the body mentions the term more often.
 
-The current generated expression — `to_tsvector('pg_catalog.simple', title || ' ' || body)` — can't express this: it's a single call over concatenated text, so every lexeme ends up at the same default weight. Getting weighted ranking means rewriting the `GENERATED ALWAYS AS (...)` expression itself to the `setweight(...) || setweight(...) || ...` form above.
+The current generated expression — `to_tsvector('pg_catalog.simple', title || ' ' || body)` — can't express this: it's a single call over concatenated text, so every lexeme ends up at the same default weight. The obvious fix is to rewrite the `GENERATED ALWAYS AS (...)` expression to the `setweight(...) || setweight(...) || ...` form above — but try that and Postgres rejects the column outright:
+
+```
+ERROR: generation expression is not immutable
+```
+
+**Why it breaks:** `GENERATED ALWAYS AS` columns are held to a stricter standard than indexes — the whole expression must be provably `IMMUTABLE`. Every individual function here (`to_tsvector` with an explicit config, `setweight`, `||`) is immutable on its own, but combining several `setweight()`-wrapped `to_tsvector()` calls together is enough to trip that check. There's no expression-only workaround.
+
+**The fix:** drop `GENERATED ALWAYS AS (...) STORED` entirely and maintain `search_vector` with a trigger instead. Trigger functions aren't held to the immutability restriction, so they can freely combine `setweight()` across `title`, `tags`, and `body`:
+
+```sql
+search_vector TSVECTOR
+
+-- ...
+
+CREATE FUNCTION tickets_search_vector_update() RETURNS trigger AS $$
+BEGIN
+    NEW.search_vector :=
+        setweight(to_tsvector('pg_catalog.english', NEW.title), 'A') ||
+        setweight(to_tsvector('pg_catalog.english', array_to_string(NEW.tags, ' ')), 'B') ||
+        setweight(to_tsvector('pg_catalog.english', NEW.body), 'D');
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trig_tickets_search_vector
+    BEFORE INSERT OR UPDATE OF title, body, tags
+    ON tickets
+    FOR EACH ROW
+EXECUTE FUNCTION tickets_search_vector_update();
+```
+
+This single change also folds Bug 1's fix in for free — `tags` is now part of the same weighted expression instead of a separate patch.
 
 ## Your Tasks
 
@@ -162,4 +194,4 @@ Automated tests will:
 
 ---
 
-**Skills exercised:** `GENERATED ALWAYS AS (...) STORED` columns · `setweight()` · `to_tsvector` config mismatches · GIN index behaviour under concurrent writes · online backfill patterns · `ts_rank` vs `ts_rank_cd`
+**Skills exercised:** `GENERATED ALWAYS AS (...) STORED` immutability limits · migrating a generated column to a trigger-maintained one · `setweight()` · `to_tsvector` config mismatches · GIN index behaviour under concurrent writes · online backfill patterns · `ts_rank` vs `ts_rank_cd`
