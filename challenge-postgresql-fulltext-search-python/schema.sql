@@ -8,20 +8,11 @@ CREATE TABLE tickets (
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    -- Pre-computed FTS vector. Populated by trigger (see below).
-    search_vector TSVECTOR
+    -- Pre-computed FTS vector, recomputed automatically as a generated column.
+    search_vector TSVECTOR GENERATED ALWAYS AS (
+        to_tsvector('pg_catalog.simple', title || ' ' || body)
+    ) STORED
 );
 
 CREATE INDEX idx_tickets_search_vector
     ON tickets USING GIN (search_vector);
-
-CREATE TRIGGER trig_tickets_search_vector
-    BEFORE INSERT OR UPDATE OF title, body, tags
-    ON tickets
-    FOR EACH ROW
-EXECUTE FUNCTION tsvector_update_trigger(
-    search_vector,
-    'pg_catalog.simple',
-    title,
-    body
-);

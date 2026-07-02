@@ -44,7 +44,7 @@ uv run uvicorn src.index:app --host 0.0.0.0 --port 8000 --reload
 
 ### Reset the database
 
-After changing `schema.sql`, drop and reload to pick up trigger changes:
+After changing `schema.sql`, drop and reload to pick up generated column changes:
 
 ```bash
 PGPASSWORD=password psql -h ticketsdb -U user -d ticketsdb -c "DROP TABLE IF EXISTS tickets CASCADE;"
@@ -54,7 +54,13 @@ PGPASSWORD=password psql -h ticketsdb -U user -d ticketsdb -f data.sql
 
 ## How search works today
 
-A `tickets` table stores support tickets with `title`, `body`, and `tags` (`text[]`) columns. A `search_vector tsvector` column was added during the migration, backed by a **GIN (Generalized Inverted Index)** for fast lookups:
+A `tickets` table stores support tickets with `title`, `body`, and `tags` (`text[]`) columns. A `search_vector` column was added during the migration as a **generated column**, backed by a **GIN (Generalized Inverted Index)** for fast lookups:
+
+```sql
+search_vector TSVECTOR GENERATED ALWAYS AS (
+    to_tsvector('pg_catalog.simple', title || ' ' || body)
+) STORED
+```
 
 ```sql
 CREATE INDEX idx_tickets_search_vector ON tickets USING GIN (search_vector);
@@ -66,19 +72,7 @@ Concretely, GIN stores two layers: an ordered B-tree-like structure over the dis
 
 The tradeoff is write cost: a GIN entry touches one posting list per distinct lexeme in the row, so inserting a row with many unique words means many small index updates, and updating a row means removing and re-adding entries across potentially many lists. Postgres mitigates this with a `GIN pending list` that buffers new entries and merges them into the main structure in batches - fine for this challenge's write volume, but worth knowing about for high-throughput ingestion. Read-heavy workloads like ticket search, where writes are relatively rare and lookups need to be fast, are exactly what GIN is built for. (Postgres also offers **GiST** indexes for full-text search - faster to update, but lossy and slower to query - a tradeoff that doesn't fit this use case.)
 
-A **trigger** keeps `search_vector` populated on every insert/update, using Postgres's built-in `tsvector_update_trigger`:
-
-```sql
-CREATE TRIGGER trig_tickets_search_vector
-    BEFORE INSERT OR UPDATE OF title, body, tags
-    ON tickets
-    FOR EACH ROW
-EXECUTE FUNCTION tsvector_update_trigger(
-    search_vector, 'pg_catalog.simple', title, body
-);
-```
-
-Triggers are functions Postgres runs automatically in response to table writes. This one fires `BEFORE INSERT OR UPDATE OF title, body, tags` — so it re-runs whenever any of those three columns change — and recomputes `search_vector` from the columns it's told to index, keeping the search index in sync without the application ever having to remember to update it.
+`search_vector` is declared `GENERATED ALWAYS AS (...) STORED` — Postgres recomputes it automatically from `title` and `body` on every insert or update, as part of the row write itself. There's no separate function to keep in sync with the table's columns; the expression lives directly in the column definition, and Postgres guarantees the stored value can never drift from what the expression would currently produce. (Generated column expressions must be immutable - no `now()`, no subqueries, no reaching into other tables - which is why this pattern only works for deriving a column from that same row's own data, but that's exactly what indexing `title` and `body` needs.)
 
 The `/tickets/search` endpoint in `src/index.py` matches against that vector and orders by recency:
 
@@ -89,7 +83,7 @@ WHERE search_vector @@ websearch_to_tsquery('pg_catalog.simple', $1)
 ORDER BY updated_at DESC
 ```
 
-On paper this looks like a textbook full-text search setup: precomputed vector, GIN index, trigger-maintained. It's also wrong in three separate ways.
+On paper this looks like a textbook full-text search setup: precomputed vector, GIN index, generated column. It's also wrong in three separate ways.
 
 ## Reproducing the issue
 
@@ -108,7 +102,7 @@ Each bug is independent, but a single query can trip more than one at once.
 
 Searching by a tag value returns zero results even when tickets are explicitly tagged with that term. `429` finds nothing despite ticket 8 being tagged `429`. `devops` finds nothing despite two tickets carrying that tag.
 
-> **Hint:** look at the trigger definition above - `tsvector_update_trigger` only indexes the columns you explicitly pass it. `tags` isn't one of them. It's a `text[]`, not `text`, so you can't hand it to the trigger directly; see [`array_to_string`](https://www.postgresql.org/docs/current/functions-array.html) for a way to convert it first.
+> **Hint:** look at the generated expression above - it only reads `title` and `body`. `tags` isn't referenced at all. It's a `text[]`, not `text`, so you can't concatenate it into the expression directly with `||`; see [`array_to_string`](https://www.postgresql.org/docs/current/functions-array.html) for a way to fold it into a string first.
 
 ### Bug 2 - Inflected words don't match
 
@@ -121,7 +115,7 @@ Searching `crashes` returns no results even when tickets contain `crashing` or `
 > SELECT websearch_to_tsquery('pg_catalog.simple', 'crashes');  -- 'crashes'
 > ```
 >
-> The trigger builds `search_vector` with `pg_catalog.simple`, which stores words as-is with no stemming. If the query side and the storage side use different configurations, they will never agree on what a word reduces to.
+> The generated expression builds `search_vector` with `pg_catalog.simple`, which stores words as-is with no stemming. If the query side and the generated column's expression use different configurations, they will never agree on what a word reduces to.
 
 ### Bug 3 - Ranking doesn't reflect relevance
 
@@ -153,7 +147,7 @@ setweight(to_tsvector('pg_catalog.simple', body), 'D')
 
 `ts_rank` then uses those labels to weight its score - by default `{D, C, B, A}` contribute `{0.1, 0.2, 0.4, 1.0}` respectively - so a title hit outranks a body hit even if the body mentions the term more often.
 
-`tsvector_update_trigger` can't express this - it only concatenates the columns you give it with equal weight. To get weighted ranking, the trigger function needs to build `search_vector` itself with the `setweight(...) || setweight(...) || ...` expression above (e.g. via a custom `PL/pgSQL` trigger function or a generated column), rather than delegating to the built-in trigger.
+The current generated expression - `to_tsvector('pg_catalog.simple', title || ' ' || body)` - can't express this: it's a single call over concatenated text, so every lexeme ends up at the same default weight. Getting weighted ranking means rewriting the `GENERATED ALWAYS AS (...)` expression itself to the `setweight(...) || setweight(...) || ...` form above.
 
 ## Your Task
 
