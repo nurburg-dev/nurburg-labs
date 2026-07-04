@@ -30,7 +30,7 @@ TRANSACTION_TYPES = {"purchase", "refund", "transfer"}
 async def startup():
     global pool
     pool = await asyncpg.create_pool(
-        **DB_CONFIG, min_size=1, max_size=10, command_timeout=2
+        **DB_CONFIG, min_size=5, max_size=30, command_timeout=2
     )
 
 

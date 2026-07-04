@@ -6,7 +6,7 @@ export const pool = new Pool({
   user: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "postgres",
   database: process.env.DB_NAME || "transactiondb",
-  max: 10,
+  max: 30,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });
