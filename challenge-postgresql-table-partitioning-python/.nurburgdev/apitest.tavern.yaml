@@ -1,0 +1,68 @@
+---
+test_name: Healthcheck returns ok
+
+stages:
+  - name: GET /healthcheck returns 200
+    request:
+      url: "{tavern.env_vars.HOST}/healthcheck"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        status: "ok"
+
+---
+test_name: Transactions endpoint returns data for valid date range
+
+stages:
+  - name: GET /transactions with start_date and end_date
+    request:
+      url: "{tavern.env_vars.HOST}/transactions"
+      method: GET
+      params:
+        start_date: "2023-01-01"
+        end_date: "2023-01-31"
+        limit: "10"
+    response:
+      status_code: 200
+      json:
+        transactions: !anything
+        stats:
+          total_count: !anything
+          total_amount: !anything
+          avg_amount: !anything
+          unique_users: !anything
+        meta:
+          query_time_ms: !anything
+          count: !anything
+
+---
+test_name: Transactions endpoint returns 400 when date params are missing
+
+stages:
+  - name: GET /transactions without required params
+    request:
+      url: "{tavern.env_vars.HOST}/transactions"
+      method: GET
+    response:
+      status_code: 400
+      json:
+        error: !anything
+
+---
+test_name: Transactions endpoint filters by transaction_type
+
+stages:
+  - name: GET /transactions filtered by purchase type
+    request:
+      url: "{tavern.env_vars.HOST}/transactions"
+      method: GET
+      params:
+        start_date: "2023-01-01"
+        end_date: "2023-03-31"
+        transaction_type: "purchase"
+        limit: "5"
+    response:
+      status_code: 200
+      json:
+        transactions: !anything

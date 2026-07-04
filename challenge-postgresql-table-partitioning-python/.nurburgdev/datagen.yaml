@@ -1,0 +1,42 @@
+name: transaction_logs
+rows: 100000000
+columns:
+  - name: user_id
+    type: int
+    settings:
+      int_range: [1, 20]
+  - name: transaction_type
+    type: string
+  - name: amount
+    type: float
+    settings:
+      float_range: [10.00, 5000.00]
+  - name: currency
+    type: string
+    faker: currency
+  - name: transaction_date
+    type: date
+    format: date_only
+    settings:
+      date_range: ["2023-01-01T00:00:00Z", "2023-12-31T23:59:59Z"]
+  - name: created_at
+    type: date
+    format: postgres
+    settings:
+      date_range: ["2023-01-01T00:00:00Z", "2023-12-31T23:59:59Z"]
+  - name: merchant_id
+    type: int
+    settings:
+      int_range: [1, 50]
+      nullable: true
+  - name: payment_method
+    type: string
+    settings:
+      nullable: true
+  - name: status
+    type: string
+  - name: description
+    type: string
+    faker: sentence
+    settings:
+      nullable: true

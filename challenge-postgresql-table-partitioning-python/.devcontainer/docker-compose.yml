@@ -1,0 +1,16 @@
+services:
+    dev:
+        image: mcr.microsoft.com/devcontainers/python:3.13
+        command: sleep infinity
+        ports:
+            - 8000:8000
+        volumes:
+            - ../:/workspaces/amber-ridge
+        depends_on:
+            - postgresdb
+    postgresdb:
+        image: postgres:17.9
+        environment:
+            POSTGRES_DB: transactiondb
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
