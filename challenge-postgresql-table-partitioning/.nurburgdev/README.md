@@ -67,7 +67,9 @@ Try the API directly:
 curl "http://localhost:3000/transactions?start_date=2023-01-01&end_date=2023-01-31"
 ```
 
-Note the `query_time_ms` in the response. Under load, this is what's killing the dashboard.
+In this local dev environment, `query_time_ms` will likely sit around 200-250ms. That doesn't look dramatic next to the multi-second horror story above — but 200ms for a single date-range read is still a lot of wasted I/O, even against a dev-sized dataset that is a fraction of production's 50 million rows.
+
+The real failure mode only shows up under concurrent load at production scale. It isn't that the query gets a bit slower — it's that Disk I/O is a shared, finite budget, and once enough concurrent queries are each scanning hundreds of unnecessary segment files, that budget runs out. Queries stop merely being slow and start timing out and erroring.
 
 ---
 

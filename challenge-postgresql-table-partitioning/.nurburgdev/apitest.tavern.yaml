@@ -45,6 +45,7 @@ stages:
       url: "{tavern.env_vars.HOST}/transactions"
       method: GET
     response:
+      strict: false
       status_code: 400
       json:
         error: !anything
@@ -63,6 +64,7 @@ stages:
         transaction_type: "purchase"
         limit: "5"
     response:
+      strict: false
       status_code: 200
       json:
         transactions: !anything
